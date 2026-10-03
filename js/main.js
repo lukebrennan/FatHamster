@@ -76,6 +76,36 @@
     });
   });
 
+  /* Instagram feed. Paste a Behold JSON feed URL into data-feed on #insta-grid to show live posts.
+     If it is empty, or the request fails, the static photos in the HTML stay in place. */
+  var instaGrid = document.getElementById('insta-grid');
+  var feedUrl = instaGrid && instaGrid.getAttribute('data-feed');
+  if (feedUrl && window.fetch) {
+    fetch(feedUrl)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        var posts = (data.posts || []).filter(function (p) { return p.sizes && p.sizes.small; }).slice(0, 6);
+        if (!posts.length) return;
+        instaGrid.textContent = '';
+        posts.forEach(function (p) {
+          var a = document.createElement('a');
+          a.href = p.permalink; a.target = '_blank'; a.rel = 'noopener';
+          var text = (p.altText || p.prunedCaption || p.caption || '').replace(/\s+/g, ' ').trim().slice(0, 110);
+          a.setAttribute('aria-label', 'Open on Instagram: ' + (text || 'latest post'));
+          var s = p.sizes, img = document.createElement('img');
+          img.src = s.small.mediaUrl;
+          if (s.medium) img.srcset = s.small.mediaUrl + ' ' + s.small.width + 'w, ' + s.medium.mediaUrl + ' ' + s.medium.width + 'w';
+          img.sizes = '(max-width: 820px) 33vw, 180px';
+          img.width = s.small.width; img.height = s.small.height;
+          img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+          a.appendChild(img);
+          if (p.mediaType === 'VIDEO') a.className = 'is-video';
+          instaGrid.appendChild(a);
+        });
+      })
+      .catch(function () { /* keep the static photos */ });
+  }
+
   /* "Enquire about this" links pre-select the product in the form */
   var interest = document.getElementById('f-interest');
   document.querySelectorAll('[data-interest]').forEach(function (a) {
