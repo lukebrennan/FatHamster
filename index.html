@@ -12,13 +12,15 @@
   <meta property="og:title" content="The Fat Hamster Wood Shop">
   <meta property="og:description" content="Bespoke, handmade woodwork from a small Prescot workshop.">
   <meta property="og:url" content="https://fathamster.co.uk/">
-  <meta property="og:image" content="https://fathamster.co.uk/assets/logo.jpg">
+  <meta property="og:image" content="https://fathamster.co.uk/assets/img/handmade-rustic-oak-coffee-table.jpg">
+  <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bitter:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <script>document.documentElement.classList.add('js');</script>
 
   <script type="application/ld+json">
   {
@@ -29,6 +31,7 @@
     "image": "https://fathamster.co.uk/assets/logo.jpg",
     "description": "Bespoke handmade woodwork: coffee tables, side tables, wall art and personalised cheeseboards.",
     "founder": { "@type": "Person", "name": "Phil Smith" },
+    "sameAs": ["https://www.instagram.com/fathamsterwoodshop/"],
     "address": { "@type": "PostalAddress", "addressLocality": "Prescot", "addressRegion": "Merseyside", "addressCountry": "GB" }
   }
   </script>
@@ -59,15 +62,49 @@
       <div class="wrap hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Handmade in Prescot, Merseyside</p>
-          <h1>Bespoke woodwork, made properly.</h1>
+          <h1>Bespoke woodwork, <em>made properly.</em></h1>
           <p class="lead">Coffee tables, side tables, wall art and personalised cheeseboards. Every piece is designed with you and built by hand in a small workshop, so you end up with something that is genuinely one of a kind.</p>
           <div class="cta-row">
             <a class="btn" href="#contact">Start a commission</a>
             <a class="btn btn-ghost" href="#makes">See what I make</a>
           </div>
+          <p class="hero-note">Free quotes. No obligation.</p>
         </div>
-        <div class="hero-logo">
-          <img src="assets/logo.jpg" alt="The Fat Hamster Wood Shop logo: a plump hamster inside a circular saw blade" width="520" height="520">
+        <div class="hero-visual">
+          <img class="hero-photo" src="assets/img/handmade-rustic-oak-coffee-table.jpg" alt="Handmade rustic oak coffee table in a living room" width="1100" height="733" fetchpriority="high">
+          <div class="badge">
+            <img src="assets/logo.jpg" alt="The Fat Hamster Wood Shop logo: a plump hamster inside a circular saw blade" width="520" height="520">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Coffee tables</span><span>Cheeseboards</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Made to order</span>
+        <span>Coffee tables</span><span>Cheeseboards</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Made to order</span>
+      </div>
+    </div>
+
+    <!-- PROMISES -->
+    <section class="strip" aria-label="Why choose a bespoke piece">
+      <div class="wrap strip-grid">
+        <div class="strip-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/></svg>
+          <div><strong>Made to measure</strong><span>Sized for your space</span></div>
+        </div>
+        <div class="strip-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22v-8M12 14c-5 0-8-3-8-8 5 0 8 3 8 8zM12 14c5 0 8-3 8-8-5 0-8 3-8 8z"/></svg>
+          <div><strong>Solid timber</strong><span>Chosen with you</span></div>
+        </div>
+        <div class="strip-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.800-8 11-8 11z"/></svg>
+          <div><strong>Personalised</strong><span>Names, dates, designs</span></div>
+        </div>
+        <div class="strip-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.500 7-12a7 7 0 0 0-14 0c0 5.500 7 12 7 12z"/><circle cx="12" cy="10" r="2.500"/></svg>
+          <div><strong>Local</strong><span>Prescot, Merseyside</span></div>
         </div>
       </div>
     </section>
@@ -75,42 +112,72 @@
     <!-- WHAT I MAKE -->
     <section class="section" id="makes">
       <div class="wrap">
-        <header class="section-head">
+        <header class="section-head reveal">
           <p class="eyebrow">What I make</p>
           <h2>Made to fit your home</h2>
           <p>Nothing is mass produced. Pick a starting point below, or bring your own idea and we will work it out together.</p>
         </header>
 
         <div class="cards">
-          <article class="card">
-            <img src="assets/img/handmade-rustic-oak-coffee-table.jpg" alt="Handmade rustic oak coffee table on a woven rug in a living room" width="1100" height="733" loading="lazy">
-            <h3>Coffee tables</h3>
-            <p>Solid, sized for your room and finished to suit your style, from chunky and rustic to clean and modern.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: oak coffee table">
+              <img src="assets/img/handmade-rustic-oak-coffee-table.jpg" alt="Handmade rustic oak coffee table on a woven rug in a living room" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Coffee tables</h3>
+              <p>Solid, sized for your room and finished to suit your style, from chunky and rustic to clean and modern.</p>
+              <a class="card-link" href="#contact" data-interest="Coffee table">Enquire about this</a>
+            </div>
           </article>
-          <article class="card">
-            <img src="assets/img/bespoke-small-wooden-bedside-table.jpg" alt="Small oak bedside table with a drawer and shelf, beside a bed" width="1100" height="733" loading="lazy">
-            <h3>Side &amp; small tables</h3>
-            <p>Lamp tables, bedside tables and plant stands. Small pieces with real character for awkward corners.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: bedside table">
+              <img src="assets/img/bespoke-small-wooden-bedside-table.jpg" alt="Small oak bedside table with a drawer and shelf, beside a bed" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Side &amp; small tables</h3>
+              <p>Lamp tables, bedside tables and plant stands. Small pieces with real character for awkward corners.</p>
+              <a class="card-link" href="#contact" data-interest="Side or small table">Enquire about this</a>
+            </div>
           </article>
-          <article class="card">
-            <img src="assets/img/rustic-geometric-wood-wall-art.jpg" alt="Framed geometric wood wall art of mountains and a sun in mixed timbers" width="1100" height="733" loading="lazy">
-            <h3>Wall art</h3>
-            <p>Layered and joined timber pieces in mixed woods that bring warmth to a wall. Made to your size, shape and colour.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: wood wall art">
+              <img src="assets/img/rustic-geometric-wood-wall-art.jpg" alt="Framed geometric wood wall art of mountains and a sun in mixed timbers" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Wall art</h3>
+              <p>Layered and joined timber pieces in mixed woods that bring warmth to a wall. Made to your size, shape and colour.</p>
+              <a class="card-link" href="#contact" data-interest="Wall art">Enquire about this</a>
+            </div>
           </article>
-          <article class="card">
-            <img src="assets/img/handmade-rustic-oak-wall-shelf-peg-rail.jpg" alt="Handmade oak wall shelf with a peg rail holding a coat and basket" width="1100" height="733" loading="lazy">
-            <h3>Shelves &amp; storage</h3>
-            <p>Hallway shelves, peg rails and wall storage, built to fit the space you have.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: wall shelf with peg rail">
+              <img src="assets/img/handmade-rustic-oak-wall-shelf-peg-rail.jpg" alt="Handmade oak wall shelf with a peg rail holding a coat and basket" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Shelves &amp; storage</h3>
+              <p>Hallway shelves, peg rails and wall storage, built to fit the space you have.</p>
+              <a class="card-link" href="#contact" data-interest="Shelf or storage">Enquire about this</a>
+            </div>
           </article>
-          <article class="card">
-            <img src="assets/img/handcrafted-walnut-serving-board-kitchen.jpg" alt="Handcrafted walnut serving board with bread, cheese and olives" width="1100" height="733" loading="lazy">
-            <h3>Boards &amp; serving pieces</h3>
-            <p>Cheeseboards and serving boards in solid timber, made to be used and shown off.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: walnut serving board">
+              <img src="assets/img/handcrafted-walnut-serving-board-kitchen.jpg" alt="Handcrafted walnut serving board with bread, cheese and olives" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Boards &amp; serving pieces</h3>
+              <p>Cheeseboards and serving boards in solid timber, made to be used and shown off.</p>
+              <a class="card-link" href="#contact" data-interest="Cheeseboard or serving board">Enquire about this</a>
+            </div>
           </article>
-          <article class="card">
-            <img src="assets/img/personalised-wooden-christmas-ornament-gift-box.jpg" alt="Personalised wooden ornament engraved with a name and year, in a gift box" width="1100" height="733" loading="lazy">
-            <h3>Gifts &amp; keepsakes</h3>
-            <p>Small personalised pieces for birthdays, weddings, new homes and Christmas.</p>
+          <article class="card reveal">
+            <button class="thumb" type="button" data-zoom aria-label="Enlarge photo: personalised ornament">
+              <img src="assets/img/personalised-wooden-christmas-ornament-gift-box.jpg" alt="Personalised wooden ornament engraved with a name and year, in a gift box" width="1100" height="733" loading="lazy">
+            </button>
+            <div class="card-body">
+              <h3>Gifts &amp; keepsakes</h3>
+              <p>Small personalised pieces for birthdays, weddings, new homes and Christmas.</p>
+              <a class="card-link" href="#contact" data-interest="Gift or keepsake">Enquire about this</a>
+            </div>
           </article>
         </div>
       </div>
@@ -119,8 +186,10 @@
     <!-- CHEESEBOARDS FEATURE -->
     <section class="feature" id="cheeseboards">
       <div class="wrap feature-grid">
-        <img class="feature-img" src="assets/img/personalised-oak-cheeseboard-engraved-family-name.jpg" alt="Oak cheeseboard with a leather loop, engraved with The Harris Family" width="1100" height="733" loading="lazy">
-        <div>
+        <button class="feature-media reveal" type="button" data-zoom aria-label="Enlarge photo: engraved cheeseboard">
+          <img src="assets/img/personalised-oak-cheeseboard-engraved-family-name.jpg" alt="Oak cheeseboard with a leather loop, engraved with The Harris Family" width="1100" height="733" loading="lazy">
+        </button>
+        <div class="reveal">
           <p class="eyebrow">The perfect gift</p>
           <h2>Customised cheeseboards</h2>
           <p>Weddings, housewarmings, anniversaries, a thank you for someone special. Choose the timber, the shape and the size, then add your own wording or design.</p>
@@ -129,7 +198,7 @@
             <li>A choice of timbers and finishes</li>
             <li>Food-safe finish as standard</li>
           </ul>
-          <a class="btn" href="#contact">Order a personalised board</a>
+          <a class="btn" href="#contact" data-interest="Cheeseboard or serving board">Order a personalised board</a>
         </div>
       </div>
     </section>
@@ -137,15 +206,15 @@
     <!-- PROCESS -->
     <section class="section" id="process">
       <div class="wrap">
-        <header class="section-head">
+        <header class="section-head reveal">
           <p class="eyebrow">How it works</p>
           <h2>From idea to finished piece</h2>
         </header>
         <ol class="steps">
-          <li><span class="num">1</span><h3>Tell me your idea</h3><p>Send a message with what you have in mind, a rough size and where it will live. Photos and sketches are welcome.</p></li>
-          <li><span class="num">2</span><h3>Agree the details</h3><p>We settle on the design, timber, finish and price before any wood is cut, so there are no surprises.</p></li>
-          <li><span class="num">3</span><h3>Made by hand</h3><p>Your piece is built in the workshop, with updates along the way if you would like them.</p></li>
-          <li><span class="num">4</span><h3>Collect or deliver</h3><p>Pick up locally in Prescot, or get in touch about delivery for larger pieces.</p></li>
+          <li class="reveal"><span class="num">1</span><h3>Tell me your idea</h3><p>Send a message with what you have in mind, a rough size and where it will live. Photos and sketches are welcome.</p></li>
+          <li class="reveal"><span class="num">2</span><h3>Agree the details</h3><p>We settle on the design, timber, finish and price before any wood is cut, so there are no surprises.</p></li>
+          <li class="reveal"><span class="num">3</span><h3>Made by hand</h3><p>Your piece is built in the workshop, with updates along the way if you would like them.</p></li>
+          <li class="reveal"><span class="num">4</span><h3>Collect or deliver</h3><p>Pick up locally in Prescot, or get in touch about delivery for larger pieces.</p></li>
         </ol>
       </div>
     </section>
@@ -153,21 +222,23 @@
     <!-- CHRISTMAS FEATURE -->
     <section class="feature feature-flip" id="christmas">
       <div class="wrap feature-grid">
-        <div>
+        <div class="reveal">
           <p class="eyebrow">Christmas</p>
           <h2>Handmade decorations</h2>
           <p>Stars, trees and little houses cut from solid timber, finished with a loop of twine. Add a name and year to make one a keepsake that comes out every December.</p>
           <p>Christmas orders fill up early in a one-man workshop, so get in touch in good time.</p>
-          <a class="btn" href="#contact">Ask about Christmas orders</a>
+          <a class="btn" href="#contact" data-interest="Gift or keepsake">Ask about Christmas orders</a>
         </div>
-        <img class="feature-img" src="assets/img/rustic-wooden-christmas-tree-decorations.jpg" alt="Wooden star, tree and house Christmas decorations hanging from a fir branch" width="1100" height="733" loading="lazy">
+        <button class="feature-media reveal" type="button" data-zoom aria-label="Enlarge photo: Christmas decorations">
+          <img src="assets/img/rustic-wooden-christmas-tree-decorations.jpg" alt="Wooden star, tree and house Christmas decorations hanging from a fir branch" width="1100" height="733" loading="lazy">
+        </button>
       </div>
     </section>
 
     <!-- ABOUT -->
     <section class="section about" id="about">
       <div class="wrap about-grid">
-        <div>
+        <div class="reveal">
           <p class="eyebrow">About Phil</p>
           <h2>A small workshop, on purpose</h2>
           <p>The Fat Hamster Wood Shop is Phil Smith's workshop in Prescot. Working at a small scale means every commission gets proper attention, and every customer deals directly with the person making their piece.</p>
@@ -176,36 +247,108 @@
             <p>Made by one pair of hands, for one person's home.</p>
           </blockquote>
         </div>
-        <div class="about-photos">
-          <img src="assets/img/bespoke-rustic-woodworking-workshop.jpg" alt="A rustic woodworking workshop with hand tools, a workbench and a small oak stool" width="1100" height="733" loading="lazy">
-          <img src="assets/img/artisan-hand-finishing-bespoke-wood-furniture.jpg" alt="A craftsman sanding the edge of an oak table by hand" width="1100" height="733" loading="lazy">
+        <div class="about-photos reveal">
+          <button type="button" data-zoom aria-label="Enlarge photo: the workshop">
+            <img src="assets/img/bespoke-rustic-woodworking-workshop.jpg" alt="A rustic woodworking workshop with hand tools, a workbench and a small oak stool" width="1100" height="733" loading="lazy">
+          </button>
+          <button type="button" data-zoom aria-label="Enlarge photo: hand finishing an oak table">
+            <img src="assets/img/artisan-hand-finishing-bespoke-wood-furniture.jpg" alt="A craftsman sanding the edge of an oak table by hand" width="1100" height="733" loading="lazy">
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTAGRAM -->
+    <section class="insta-band" id="instagram" aria-labelledby="insta-title">
+      <div class="wrap">
+        <div class="insta-head reveal">
+          <div>
+            <p class="eyebrow">Follow along</p>
+            <h2 id="insta-title">See the latest from the workshop</h2>
+          </div>
+          <a class="btn btn-ghost" href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.500" cy="6.500" r="1" fill="currentColor" stroke="none"/></svg>
+            @fathamsterwoodshop
+          </a>
+        </div>
+        <div class="insta-grid reveal">
+          <a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="Open Instagram: oak shelf"><img src="assets/img/handmade-rustic-oak-wall-shelf-peg-rail.jpg" alt="" loading="lazy" width="1100" height="733"></a>
+          <a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="Open Instagram: walnut board"><img src="assets/img/handcrafted-walnut-serving-board-kitchen.jpg" alt="" loading="lazy" width="1100" height="733"></a>
+          <a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="Open Instagram: wall art"><img src="assets/img/rustic-geometric-wood-wall-art.jpg" alt="" loading="lazy" width="1100" height="733"></a>
+          <a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="Open Instagram: workshop"><img src="assets/img/bespoke-rustic-woodworking-workshop.jpg" alt="" loading="lazy" width="1100" height="733"></a>
+          <a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="Open Instagram: decorations"><img src="assets/img/rustic-wooden-christmas-tree-decorations.jpg" alt="" loading="lazy" width="1100" height="733"></a>
         </div>
       </div>
     </section>
 
     <!-- CONTACT -->
     <section class="contact" id="contact">
-      <div class="wrap">
-        <header class="section-head">
+      <div class="wrap contact-grid">
+        <div class="contact-intro reveal">
           <p class="eyebrow">Get in touch</p>
           <h2>Got something in mind?</h2>
           <p>Tell me what you would like made and I will come back to you with ideas and a price. No obligation.</p>
-        </header>
-        <div class="contact-actions">
-          <!-- Placeholder email: swap for the real address before launch -->
-          <a class="btn btn-light" href="mailto:hello@fathamster.co.uk?subject=Commission%20enquiry">Email Phil</a>
-          <p class="where">Workshop based in Prescot, Merseyside L34</p>
+          <ul class="contact-list">
+            <!-- Placeholder email: swap for the real address before launch -->
+            <li><span>Email</span><a href="mailto:hello@fathamster.co.uk">hello@fathamster.co.uk</a></li>
+            <li><span>Instagram</span><a href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener">@fathamsterwoodshop</a></li>
+            <li><span>Workshop</span>Prescot, Merseyside L34</li>
+            <li><span>Pick up</span>Local collection, or delivery by arrangement</li>
+          </ul>
         </div>
+
+        <form class="enquiry reveal" id="enquiry" novalidate>
+          <div class="field">
+            <label for="f-name">Your name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-email">Email address</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="f-interest">What are you after?</label>
+            <select id="f-interest" name="interest">
+              <option>Coffee table</option>
+              <option>Side or small table</option>
+              <option>Wall art</option>
+              <option>Shelf or storage</option>
+              <option>Cheeseboard or serving board</option>
+              <option>Gift or keepsake</option>
+              <option selected>Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-message">Tell me about it</label>
+            <textarea id="f-message" name="message" rows="4" placeholder="Rough size, timber, where it will go, any deadline"></textarea>
+          </div>
+          <button class="btn" type="submit">Send enquiry</button>
+          <p class="form-note" id="form-note" role="status">This opens your email app with the details filled in.</p>
+        </form>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap foot">
-      <p>&copy; <span id="year">2026</span> The Fat Hamster Wood Shop. Prescot, Merseyside.</p>
-      <a href="#top">Back to top</a>
+      <p class="copy">&copy; <span id="year">2026</span> The Fat Hamster Wood Shop. Prescot, Merseyside.</p>
+      <a class="insta" href="https://www.instagram.com/fathamsterwoodshop/" target="_blank" rel="noopener" aria-label="The Fat Hamster Wood Shop on Instagram">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.500" cy="6.500" r="1" fill="currentColor" stroke="none"/></svg>
+        <span>@fathamsterwoodshop</span>
+      </a>
+      <p class="credit">Website created by Luke Brennan</p>
     </div>
   </footer>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+    <button class="lb-close" type="button" aria-label="Close">&times;</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Previous photo">&#8249;</button>
+    <figure>
+      <img src="" alt="">
+      <figcaption></figcaption>
+    </figure>
+    <button class="lb-nav lb-next" type="button" aria-label="Next photo">&#8250;</button>
+  </dialog>
 
   <script src="js/main.js"></script>
 </body>
