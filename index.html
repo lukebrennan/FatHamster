@@ -31,11 +31,11 @@
   <meta name="twitter:image:alt" content="The Fat Hamster Wood Shop. Bespoke woodwork and personalised gifts, made in Prescot.">
 
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bitter:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preload" href="assets/fonts/alfa-slab-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/bitter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="assets/img/bespoke-cedar-garden-pergola-1100.webp" imagesrcset="assets/img/bespoke-cedar-garden-pergola-480.webp 480w, assets/img/bespoke-cedar-garden-pergola-800.webp 800w, assets/img/bespoke-cedar-garden-pergola-1100.webp 1100w" imagesizes="(max-width: 820px) 65vw, 520px" fetchpriority="high">
-  <link rel="stylesheet" href="css/styles.css?v=8">
+  <link rel="stylesheet" href="css/styles.css?v=10">
   <script>document.documentElement.classList.add('js');</script>
 
   <script type="application/ld+json">
@@ -47,13 +47,14 @@
     "url": "https://fathamster.co.uk/",
     "image": "https://fathamster.co.uk/assets/social-card.jpg",
     "logo": "https://fathamster.co.uk/assets/logo.jpg",
-    "description": "Handmade bespoke woodwork from a small Prescot workshop: furniture, garden planters and pergolas, wall art and personalised cheeseboards, made to order.",
+    "description": "Handmade bespoke woodwork from a small Prescot workshop: furniture, garden planters and pergolas, wall art and personalised cheeseboards, with resin customisation, made to order.",
     "founder": { "@type": "Person", "name": "Phil Smith" },
     "makesOffer": [
       { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Bespoke coffee tables and side tables" } },
       { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Garden planters and pergolas" } },
       { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Wall art, shelves and storage" } },
-      { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Personalised cheeseboards and gifts" } }
+      { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Personalised cheeseboards and gifts" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Resin customisation" } }
     ],
     "areaServed": [
       { "@type": "City", "name": "Prescot" },
@@ -110,8 +111,8 @@
     <!-- TICKER -->
     <div class="ticker" aria-hidden="true">
       <div class="ticker-track">
-        <span>Coffee tables</span><span>Garden planters</span><span>Cheeseboards</span><span>Pergolas</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Made to order</span>
-        <span>Coffee tables</span><span>Garden planters</span><span>Cheeseboards</span><span>Pergolas</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Made to order</span>
+        <span>Coffee tables</span><span>Garden planters</span><span>Cheeseboards</span><span>Pergolas</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Resin details</span><span>Made to order</span>
+        <span>Coffee tables</span><span>Garden planters</span><span>Cheeseboards</span><span>Pergolas</span><span>Wall art</span><span>Side tables</span><span>Shelves</span><span>Keepsakes</span><span>Resin details</span><span>Made to order</span>
       </div>
     </div>
 
@@ -128,7 +129,7 @@
         </div>
         <div class="strip-item">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.800-8 11-8 11z"/></svg>
-          <div><strong>Personalised</strong><span>Names, dates, designs</span></div>
+          <div><strong>Personalised</strong><span>Names, dates, resin details</span></div>
         </div>
         <div class="strip-item">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.500 7-12a7 7 0 0 0-14 0c0 5.500 7 12 7 12z"/><circle cx="12" cy="10" r="2.500"/></svg>
@@ -143,7 +144,7 @@
         <header class="section-head reveal">
           <p class="eyebrow">What I make</p>
           <h2>Made to fit your home and garden</h2>
-          <p>Nothing is mass produced. Pick a starting point below, or bring your own idea and we will work it out together.</p>
+          <p>Nothing is mass produced. Pick a starting point below, or bring your own idea and we will work it out together. Phil also works with resin, so pieces can be customised with colour and detail.</p>
         </header>
 
         <div class="filters reveal" role="group" aria-label="Filter products">
@@ -297,6 +298,7 @@
           <ul class="ticks">
             <li>Names, dates and short messages</li>
             <li>A choice of timbers and finishes</li>
+            <li>Resin colour and detail on request</li>
             <li>Food-safe finish as standard</li>
           </ul>
           <a class="btn" href="#contact" data-interest="Cheeseboard or serving board">Order a personalised board</a>
@@ -450,6 +452,7 @@
               <option>Cheeseboard or serving board</option>
               <option>Gift or keepsake</option>
               <option>Garden piece</option>
+              <option>Resin customisation</option>
               <option>Business or venue</option>
               <option selected>Something else</option>
             </select>
@@ -486,6 +489,6 @@
     <button class="lb-nav lb-next" type="button" aria-label="Next photo">&#8250;</button>
   </dialog>
 
-  <script src="js/main.js?v=8"></script>
+  <script src="js/main.js?v=10"></script>
 </body>
 </html>
