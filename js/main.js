@@ -13,6 +13,20 @@
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
 
+  /* Header shrinks and gains a shadow once the page scrolls; hero photo drifts slightly (parallax) */
+  var header = document.querySelector('.site-header');
+  var heroPhoto = document.querySelector('.hero-photo');
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ticking = false;
+  function onScroll() {
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    header.classList.toggle('scrolled', y > 24);
+    if (heroPhoto && !calm && y < 900) heroPhoto.style.setProperty('--py', String(Math.round(y * -0.06)));
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
   /* Scroll reveal */
   var reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
