@@ -168,11 +168,15 @@
     var l1 = document.getElementById('d-line1'), l2 = document.getElementById('d-line2');
     var body = document.getElementById('board-body'), hole = document.getElementById('board-hole');
     var t = { a: document.getElementById('t1'), ah: document.getElementById('t1-hi'), b: document.getElementById('t2'), bh: document.getElementById('t2-hi') };
+    /* The example wording shows on the board until the visitor starts typing in that box */
+    var touched = {};
+    [l1, l2].forEach(function (el) { el.addEventListener('input', function () { touched[el.id] = true; }); });
+    function shown(el) { var v = el.value.trim(); return v || (touched[el.id] ? '' : el.placeholder); }
     function val(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
 
     function draw() {
       var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];
-      var a = l1.value.trim(), b = l2.value.trim().toUpperCase();
+      var a = shown(l1), b = shown(l2).toUpperCase();
       body.setAttribute('clip-path', 'url(#' + sh.clip + ')');
       var wn = document.getElementById('d-wood-name'); if (wn) wn.textContent = wd.name.charAt(0).toUpperCase() + wd.name.slice(1);
       svg.style.setProperty('--wood', wd.fill);
@@ -201,7 +205,9 @@
 
     document.getElementById('designer-send').addEventListener('click', function () {
       var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];
-      var line = 'Board design: ' + sh.name + ' in ' + wd.name + ', ' + ft.name.toLowerCase() + ' lettering.\nEngraving: "' + l1.value.trim() + '"' + (l2.value.trim() ? ' / "' + l2.value.trim() + '"' : '') + '.\n';
+      var v1 = l1.value.trim(), v2 = l2.value.trim();
+      var engraving = v1 ? '"' + v1 + '"' + (v2 ? ' / "' + v2 + '"' : '') : (v2 ? '"' + v2 + '"' : 'wording to be decided');
+      var line = 'Board design: ' + sh.name + ' in ' + wd.name + ', ' + ft.name.toLowerCase() + ' lettering.\nEngraving: ' + engraving + '.\n';
       var msg = document.getElementById('f-message');
       msg.value = line + (msg.value && msg.value.indexOf('Board design:') !== 0 ? '\n' + msg.value : '');
       document.getElementById('f-interest').value = 'Cheeseboard or serving board';
