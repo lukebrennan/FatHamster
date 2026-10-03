@@ -440,14 +440,11 @@ html.is-loading { overflow: hidden; }
   .strip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-block: 1.4rem; gap: 1.2rem; }
   .steps li:not(:last-child)::before { display: none; }
 }
-@media (max-width: 560px) {
-  .steps { grid-template-columns: 1fr; }
-}
 @media (max-width: 820px) {
   .float-cta {
     display: block; position: fixed; z-index: 45; right: 1rem; bottom: calc(1rem + env(safe-area-inset-bottom));
     background: var(--walnut); color: var(--cream); text-decoration: none; font-weight: 600;
-    padding: .8rem 1.4rem; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.35);
+    padding: .6rem 1.1rem; font-size: .9rem; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.35);
     opacity: 0; transform: translateY(150%); pointer-events: none; transition: opacity .3s, transform .3s;
   }
   .float-cta.show { opacity: 1; transform: none; pointer-events: auto; }
@@ -477,6 +474,52 @@ html.is-loading { overflow: hidden; }
   .lb-prev { left: 1rem; }
   .lb-next { right: 1rem; }
 }
+
+/* ---- Phones: shorter page ---- */
+.swipe-hint { display: none; }
+@media (max-width: 820px) {
+  /* products become a swipeable row instead of 15 stacked cards */
+  .swipe-hint { display: flex; align-items: center; gap: .5rem; margin: -.4rem 0 .9rem; font-size: .85rem; font-weight: 600; color: var(--oak-dark); letter-spacing: .04em; }
+  .swipe-hint::after { content: "\2192"; animation: nudge 1.6s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateX(6px); } }
+  #makes .cards { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -1rem; padding: .4rem 1rem 1.4rem; scroll-padding-inline: 1rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
+  #makes .cards::-webkit-scrollbar { display: none; }
+  #makes .card { flex: 0 0 min(74vw, 310px); scroll-snap-align: start; }
+  .js #makes .cards .reveal { opacity: 1; transform: none; transition: none; }
+  .card-body { padding: 1rem 1.1rem 1.2rem; }
+  .card-body p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .95rem; margin-bottom: .8rem; }
+  .card.card-cta .card-body p { display: block; -webkit-line-clamp: unset; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; margin: -.2rem -1rem 1.4rem; padding: .2rem 1rem; scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .chip { flex: none; }
+
+  /* tighter vertical rhythm */
+  .section { padding-block: 2.6rem; }
+  .feature, .case, .insta-band { padding-block: 2.6rem; }
+  .contact { padding-block: 3rem; }
+  .section-head { margin-bottom: 1.5rem; }
+  .hero { padding-block: 1.6rem 3.2rem; }
+  h2 { margin-bottom: .45em; }
+  .feature-grid, .about-grid, .case-grid, .contact-grid, .statement .case-grid { gap: 1.6rem; }
+  .feature-photos button:last-child { margin-top: -2.2rem; }
+  .case-photo img { aspect-ratio: 1 / 1; object-position: 50% 30%; }
+  .statement .case-photo img { aspect-ratio: 3 / 2; }
+  .ticks { margin-bottom: 1.2rem; }
+  .insta-head { margin-bottom: 1.2rem; }
+
+  /* paired photos sit side by side */
+  .feature-photos, .about-photos { grid-template-columns: 1fr 1fr; gap: .6rem; align-items: stretch; }
+  .feature-photos button:last-child, .about-photos button:last-child { width: 100%; margin-top: 0; border: 0; justify-self: stretch; }
+  .feature-photos img, .about-photos img { height: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+  .contact-list li:last-child { display: none; }
+
+  /* how it works: two across */
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; }
+  .steps h3 { font-size: 1.05rem; }
+  .steps p { font-size: .9rem; }
+  .num { width: 2.5rem; height: 2.5rem; font-size: 1.05rem; margin-bottom: .6rem; }
+}
+@media (max-width: 340px) { .steps { grid-template-columns: 1fr; } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

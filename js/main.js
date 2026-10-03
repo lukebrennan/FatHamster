@@ -87,6 +87,7 @@
         card.hidden = !show;
         if (show) card.classList.add('in');
       });
+      var track = document.querySelector('#makes .cards'); if (track) track.scrollLeft = 0;
     });
   });
 
