@@ -244,6 +244,13 @@ blockquote p { margin: 0; }
 .btn-outline-light { background: transparent; color: var(--cream); border-color: rgba(246,240,228,.6); }
 .btn-outline-light:hover { background: var(--cream); color: var(--walnut); border-color: var(--cream); }
 
+/* Statement piece (bull's head): text left, wide photo right */
+.statement .case-grid { grid-template-columns: 1.1fr .9fr; }
+.statement .case-photo { max-width: 560px; width: 100%; }
+.statement .case-photo img { aspect-ratio: 3 / 2; object-position: 50% 40%; }
+.statement .ticks li { color: #e6dbc4; }
+.statement .ticks li::before { border-color: var(--oak-light); }
+
 /* Contact (saw-tooth top edge echoes the logo) */
 .contact { position: relative; background: var(--walnut); color: var(--cream); padding-block: clamp(4rem, 8vw, 6.5rem); margin-top: 18px; }
 .contact::before {
@@ -373,7 +380,7 @@ blockquote p { margin: 0; }
   .foot { grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .credit { text-align: center; }
   .hero-visual::before { inset: 1.2rem -.4rem .5rem 2rem; }
-  .hero-grid, .feature-grid, .feature-flip .feature-grid, .about-grid, .contact-grid, .case-grid { grid-template-columns: 1fr; gap: 2.2rem; }
+  .hero-grid, .feature-grid, .feature-flip .feature-grid, .about-grid, .contact-grid, .case-grid, .statement .case-grid { grid-template-columns: 1fr; gap: 2.2rem; }
   .hero-visual { padding: 0 0 1.5rem 1rem; }
   .hero-photo { border-radius: 120px 12px 12px 12px; }
   .case-photo button { border-radius: 120px 14px 14px 14px; }
