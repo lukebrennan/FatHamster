@@ -26,23 +26,25 @@
     reveals.forEach(function (el) { el.classList.add('in'); });
   }
 
-  /* Lightbox */
+  /* Lightbox (steps through whichever photos are currently visible) */
   var box = document.getElementById('lightbox');
   var boxImg = box.querySelector('img');
   var boxCap = box.querySelector('figcaption');
-  var zoomables = Array.prototype.slice.call(document.querySelectorAll('[data-zoom]'));
+  var all = Array.prototype.slice.call(document.querySelectorAll('[data-zoom]'));
+  var list = [];
   var current = 0;
 
   function show(i) {
-    current = (i + zoomables.length) % zoomables.length;
-    var img = zoomables[current].querySelector('img');
+    current = (i + list.length) % list.length;
+    var img = list[current].querySelector('img');
     boxImg.src = img.currentSrc || img.src;
     boxImg.alt = img.alt;
     boxCap.textContent = img.alt;
   }
-  zoomables.forEach(function (btn, i) {
+  all.forEach(function (btn) {
     btn.addEventListener('click', function () {
-      show(i);
+      list = all.filter(function (b) { return b.offsetParent !== null; });
+      show(list.indexOf(btn));
       if (typeof box.showModal === 'function') box.showModal();
     });
   });
@@ -53,6 +55,25 @@
   box.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') show(current - 1);
     if (e.key === 'ArrowRight') show(current + 1);
+  });
+
+  /* Product category filter */
+  var chips = document.querySelectorAll('.chip');
+  var cards = document.querySelectorAll('.card[data-cat]');
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var f = chip.getAttribute('data-filter');
+      chips.forEach(function (c) {
+        var on = c === chip;
+        c.classList.toggle('active', on);
+        c.setAttribute('aria-pressed', String(on));
+      });
+      cards.forEach(function (card) {
+        var show = f === 'all' || card.getAttribute('data-cat') === f;
+        card.hidden = !show;
+        if (show) card.classList.add('in');
+      });
+    });
   });
 
   /* "Enquire about this" links pre-select the product in the form */

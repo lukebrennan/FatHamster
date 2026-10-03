@@ -66,7 +66,7 @@ p { margin: 0 0 1em; }
   transition: background .2s, color .2s, transform .2s, box-shadow .2s;
 }
 .btn:hover { background: var(--oak-dark); border-color: var(--oak-dark); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(59,47,32,.25); }
-:is(.btn, .nav a, .nav-toggle, .thumb, .feature-media, .about-photos button, .card-link, .lightbox button, input, select, textarea):focus-visible { outline: 3px solid var(--oak); outline-offset: 3px; }
+:is(.btn, .nav a, .nav-toggle, .thumb, .feature-media, .about-photos button, .feature-photos button, .case-photo button, .card-link, .lightbox button, input, select, textarea):focus-visible { outline: 3px solid var(--oak); outline-offset: 3px; }
 .btn-ghost { background: transparent; color: var(--walnut); }
 .btn-ghost:hover { background: var(--walnut); color: var(--cream); border-color: var(--walnut); }
 .btn-small { padding: .5rem 1.1rem; font-size: .95rem; }
@@ -136,6 +136,14 @@ p { margin: 0 0 1em; }
 .section-head { max-width: 40rem; margin-bottom: 2.8rem; }
 .section-head p:last-child { color: var(--walnut-soft); margin-bottom: 0; }
 
+/* Product filters */
+.filters { display: flex; flex-wrap: wrap; gap: .6rem; margin: -1rem 0 2rem; }
+.chip { font-weight: 600; font-size: .95rem; padding: .5rem 1.15rem; border-radius: 999px; border: 2px solid var(--walnut); background: transparent; color: var(--walnut); cursor: pointer; transition: background .2s, color .2s; }
+.chip:hover { background: var(--cream-deep); }
+.chip.active { background: var(--walnut); color: var(--cream); }
+.chip:focus-visible { outline: 3px solid var(--oak); outline-offset: 3px; }
+.card[hidden] { display: none; }
+
 /* Product cards */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.8rem; }
 .card {
@@ -148,7 +156,7 @@ p { margin: 0 0 1em; }
   transition: transform .25s, box-shadow .25s;
 }
 .card:hover { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(59,47,32,.16); }
-.thumb, .feature-media, .about-photos button { display: block; width: 100%; padding: 0; border: 0; background: var(--cream-deep); cursor: zoom-in; overflow: hidden; position: relative; }
+.thumb, .feature-media, .about-photos button, .feature-photos button { display: block; width: 100%; padding: 0; border: 0; background: var(--cream-deep); cursor: zoom-in; overflow: hidden; position: relative; }
 .thumb img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform .6s ease; }
 .card:hover .thumb img { transform: scale(1.06); }
 .card-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; flex: 1; }
@@ -174,6 +182,12 @@ p { margin: 0 0 1em; }
 .ticks { list-style: none; padding: 0; margin: 0 0 1.8rem; }
 .ticks li { padding-left: 1.8rem; position: relative; margin-bottom: .45rem; }
 .ticks li::before { content: ""; position: absolute; left: 0; top: .55em; width: .7rem; height: .4rem; border-left: 3px solid var(--oak-dark); border-bottom: 3px solid var(--oak-dark); transform: rotate(-45deg); }
+
+.feature-photos { display: grid; gap: 1rem; }
+.feature-photos button { border-radius: var(--radius); box-shadow: var(--shadow); }
+.feature-photos img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform .6s ease; }
+.feature-photos button:hover img { transform: scale(1.04); }
+.feature-photos button:last-child { width: 72%; justify-self: end; margin-top: -3.2rem; border: 6px solid var(--cream-deep); }
 
 /* Steps */
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; counter-reset: s; position: relative; }
