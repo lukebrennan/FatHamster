@@ -6,9 +6,16 @@
   function setOpen(open) {
     nav.classList.toggle('open', open);
     toggle.setAttribute('aria-expanded', String(open));
+    toggle.textContent = open ? 'Close' : 'Menu';
   }
   toggle.addEventListener('click', function () { setOpen(!nav.classList.contains('open')); });
   nav.addEventListener('click', function (e) { if (e.target.tagName === 'A') setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && nav.classList.contains('open')) { setOpen(false); toggle.focus(); }
+  });
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) setOpen(false);
+  });
 
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
@@ -66,6 +73,14 @@
   box.querySelector('.lb-prev').addEventListener('click', function () { show(current - 1); });
   box.querySelector('.lb-next').addEventListener('click', function () { show(current + 1); });
   box.addEventListener('click', function (e) { if (e.target === box) box.close(); });
+  var sx = null, sy = null;
+  box.addEventListener('touchstart', function (e) { sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY; }, { passive: true });
+  box.addEventListener('touchend', function (e) {
+    if (sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = sy = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(current + (dx < 0 ? 1 : -1));
+    else if (dy > 90 && dy > Math.abs(dx) * 1.5) box.close();
+  }, { passive: true });
   box.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') show(current - 1);
     if (e.key === 'ArrowRight') show(current + 1);
@@ -252,17 +267,25 @@
   var TO = 'hello@fathamster.co.uk';
   if (form.getAttribute('data-endpoint')) note.textContent = 'Phil will reply to you by email.';
 
+  ['f-name', 'f-email'].forEach(function (id) {
+    var f = document.getElementById(id);
+    f.addEventListener('input', function () { f.setAttribute('aria-invalid', 'false'); var er = document.getElementById('err-' + id.slice(2)); if (er) er.hidden = true; });
+  });
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var name = form.elements.name, email = form.elements.email;
-    var ok = true;
-    [name, email].forEach(function (f) {
-      var bad = !f.value.trim() || (f.type === 'email' && !/^\S+@\S+\.\S+$/.test(f.value));
-      f.classList.toggle('invalid', bad);
-      if (bad) ok = false;
-    });
-    if (!ok) {
-      note.textContent = 'Please add your name and a valid email address.';
+    var problems = [];
+    function check(field, errId, message, bad) {
+      var err = document.getElementById(errId);
+      field.setAttribute('aria-invalid', bad ? 'true' : 'false');
+      err.hidden = !bad; err.textContent = bad ? message : '';
+      if (bad) problems.push(field);
+    }
+    check(name, 'err-name', 'Please tell Phil your name.', !name.value.trim());
+    check(email, 'err-email', 'Please enter a valid email address so Phil can reply.', !/^\S+@\S+\.\S+$/.test(email.value.trim()));
+    if (problems.length) {
+      note.textContent = 'A couple of details are missing above.';
+      problems[0].focus();
       return;
     }
     var details = {

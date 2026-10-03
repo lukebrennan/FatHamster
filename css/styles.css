@@ -190,6 +190,7 @@ p { margin: 0 0 1em; }
 .card-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; flex: 1; }
 .card-body p { color: var(--walnut-soft); font-size: .98rem; }
 .card-link {
+  min-height: 44px; display: inline-flex; align-items: center;
   margin-top: auto; align-self: flex-start;
   font-weight: 600; text-decoration: none; color: var(--oak-dark);
   border-bottom: 2px solid transparent; padding-bottom: 2px;
@@ -317,7 +318,7 @@ blockquote p { margin: 0; }
 .contact-list { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: .9rem; }
 .contact-list li { display: grid; grid-template-columns: 6rem 1fr; gap: .5rem; padding-top: .9rem; border-top: 1px solid rgba(246,240,228,.2); }
 .contact-list span { color: var(--oak-light); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: .78rem; padding-top: .2rem; }
-.contact-list a { text-decoration-color: var(--oak); text-underline-offset: 3px; }
+.contact-list a { display: inline-block; padding: .55rem 0; text-decoration-color: var(--oak); text-underline-offset: 3px; }
 
 .enquiry { background: var(--paper); color: var(--ink); border-radius: var(--radius); padding: 1.8rem; box-shadow: 0 18px 40px rgba(0,0,0,.35); }
 .field { margin-bottom: 1.1rem; }
@@ -363,6 +364,11 @@ blockquote p { margin: 0; }
 /* Floating quote button (phones only) */
 .float-cta { display: none; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.hp input { font-size: 16px; }
+.field input, .field select, .field textarea { scroll-margin-top: 6.5rem; }
+.field-error { color: #a3271c; font-size: .88rem; font-weight: 600; margin: .35rem 0 0; }
+.field-error[hidden] { display: none; }
+.field input[aria-invalid="true"] { border-color: #b3382c; box-shadow: 0 0 0 3px rgba(179,56,44,.18); }
 .thanks { text-align: center; padding: 1.5rem .5rem; }
 .thanks h3 { margin-bottom: .5rem; }
 .thanks p { color: var(--walnut-soft); margin: 0; }
