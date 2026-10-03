@@ -144,12 +144,12 @@ p { margin: 0 0 1em; }
 .section-head p:last-child { color: var(--walnut-soft); margin-bottom: 0; }
 
 /* Call-to-action card closes the grid */
-.card-cta { background: var(--walnut); color: var(--cream); border-color: var(--walnut); justify-content: center; }
+.card.card-cta { background: var(--walnut); color: var(--cream); border-color: var(--walnut); justify-content: center; }
 .card-cta .card-body { flex: 0 1 auto; padding: 2rem 1.8rem; align-items: flex-start; }
-.card-cta h3 { color: var(--cream); font-size: 1.5rem; }
-.card-cta p { color: #e6dbc4; }
+.card-cta .card-body h3 { color: var(--cream); font-size: 1.5rem; }
+.card-cta .card-body p { color: #e6dbc4; font-size: 1rem; }
 .card-cta .btn { margin-top: .6rem; }
-.card-cta:hover { box-shadow: 0 16px 32px rgba(59,47,32,.35); }
+.card.card-cta:hover { box-shadow: 0 16px 32px rgba(59,47,32,.35); }
 
 /* Product filters */
 .filters { display: flex; flex-wrap: wrap; gap: .6rem; margin: -1rem 0 2rem; }
