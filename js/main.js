@@ -138,10 +138,12 @@
 
     /* Floating quote button: shown after the hero, hidden once the contact section is on screen */
     var fab = document.querySelector('.float-cta');
-    var pastHero = false, atContact = false;
-    function updateFab() { fab.classList.toggle('show', pastHero && !atContact); }
+    var pastHero = false, atContact = false, atDesigner = false;
+    function updateFab() { fab.classList.toggle('show', pastHero && !atContact && !atDesigner); }
     new IntersectionObserver(function (e) { pastHero = !e[0].isIntersecting && e[0].boundingClientRect.top < 0; updateFab(); }).observe(document.getElementById('top'));
     new IntersectionObserver(function (e) { atContact = e[0].isIntersecting; updateFab(); }, { rootMargin: '0px 0px -10% 0px' }).observe(document.getElementById('contact'));
+    var dz = document.getElementById('designer');
+    if (dz) new IntersectionObserver(function (e) { atDesigner = e[0].isIntersecting; updateFab(); }).observe(dz);
   }
 
   /* Board designer: live engraved preview, and "send to Phil" fills in the enquiry form */
@@ -172,6 +174,7 @@
       var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];
       var a = l1.value.trim(), b = l2.value.trim().toUpperCase();
       body.setAttribute('clip-path', 'url(#' + sh.clip + ')');
+      var wn = document.getElementById('d-wood-name'); if (wn) wn.textContent = wd.name.charAt(0).toUpperCase() + wd.name.slice(1);
       svg.style.setProperty('--wood', wd.fill);
       if (sh.hole) { hole.setAttribute('cx', sh.hole[0]); hole.setAttribute('cy', sh.hole[1]); hole.style.display = ''; } else { hole.style.display = 'none'; }
       var s1 = Math.max(18, Math.min(64, sh.maxW / (Math.max(a.length, 1) * ft.k)));
