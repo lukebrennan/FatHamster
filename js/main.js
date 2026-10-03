@@ -144,6 +144,81 @@
     new IntersectionObserver(function (e) { atContact = e[0].isIntersecting; updateFab(); }, { rootMargin: '0px 0px -10% 0px' }).observe(document.getElementById('contact'));
   }
 
+  /* Board designer: live engraved preview, and "send to Phil" fills in the enquiry form */
+  var svg = document.getElementById('board-svg');
+  if (svg) {
+    var SHAPES = {
+      round: { name: 'round paddle board', clip: 'clip-round', cx: 235, maxW: 270, hole: [582, 200] },
+      long:  { name: 'long paddle board',  clip: 'clip-long',  cx: 240, maxW: 360, hole: [582, 200] },
+      plain: { name: 'serving board',      clip: 'clip-plain', cx: 320, maxW: 480, hole: null }
+    };
+    var WOODS = {
+      oak:    { name: 'oak',    fill: '#c79a58', ink: '#3a1f0c', hi: .42 },
+      walnut: { name: 'walnut', fill: '#6b4a31', ink: '#160a03', hi: .30 },
+      ash:    { name: 'ash',    fill: '#d9c39a', ink: '#4a2c12', hi: .50 },
+      cherry: { name: 'cherry', fill: '#a4573a', ink: '#2a0d06', hi: .34 }
+    };
+    var FONTS = {
+      classic: { name: 'Classic', css: 'Bitter, Georgia, serif', style: 'italic', weight: 400, k: .5,  ls: 0 },
+      bold:    { name: 'Bold',    css: '"Alfa Slab One", Georgia, serif', style: 'normal', weight: 400, k: .64, ls: 0 },
+      clean:   { name: 'Clean',   css: 'Bitter, Georgia, serif', style: 'normal', weight: 600, k: .56, ls: 1 }
+    };
+    var l1 = document.getElementById('d-line1'), l2 = document.getElementById('d-line2');
+    var body = document.getElementById('board-body'), hole = document.getElementById('board-hole');
+    var t = { a: document.getElementById('t1'), ah: document.getElementById('t1-hi'), b: document.getElementById('t2'), bh: document.getElementById('t2-hi') };
+    function val(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+
+    function draw() {
+      var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];
+      var a = l1.value.trim(), b = l2.value.trim().toUpperCase();
+      body.setAttribute('clip-path', 'url(#' + sh.clip + ')');
+      svg.style.setProperty('--wood', wd.fill);
+      if (sh.hole) { hole.setAttribute('cx', sh.hole[0]); hole.setAttribute('cy', sh.hole[1]); hole.style.display = ''; } else { hole.style.display = 'none'; }
+      var s1 = Math.max(18, Math.min(64, sh.maxW / (Math.max(a.length, 1) * ft.k)));
+      var s2 = Math.max(12, Math.min(24, sh.maxW / (Math.max(b.length, 1) * (.74 + .12))));
+      var y1 = b ? 192 : 212, y2 = 192 + s1 * .62 + 18;
+      [['a', a, s1, y1, true], ['b', b, s2, y2, false]].forEach(function (r) {
+        [t[r[0]], t[r[0] + 'h']].forEach(function (el, i) {
+          el.textContent = r[1];
+          el.setAttribute('x', sh.cx + (i ? 1.2 : 0));
+          el.setAttribute('y', r[3] + (i ? 1.8 : 0));
+          el.style.fontSize = r[2] + 'px';
+          el.style.fontFamily = r[4] ? ft.css : 'Bitter, Georgia, serif';
+          el.style.fontStyle = r[4] ? ft.style : 'normal';
+          el.style.fontWeight = r[4] ? ft.weight : 600;
+          el.style.letterSpacing = r[4] ? (ft.ls ? '.5px' : '0') : '.14em';
+          if (!i) { el.style.fill = wd.ink; el.style.opacity = r[4] ? .74 : .6; } else { el.style.opacity = wd.hi; }
+        });
+      });
+      svg.setAttribute('aria-label', 'Preview of a ' + sh.name + ' in ' + wd.name + ' engraved with ' + (a || 'nothing yet') + (b ? ', ' + b.toLowerCase() : ''));
+    }
+    document.querySelectorAll('#designer input').forEach(function (el) { el.addEventListener('input', draw); el.addEventListener('change', draw); });
+    draw();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+
+    document.getElementById('designer-send').addEventListener('click', function () {
+      var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];
+      var line = 'Board design: ' + sh.name + ' in ' + wd.name + ', ' + ft.name.toLowerCase() + ' lettering.\nEngraving: "' + l1.value.trim() + '"' + (l2.value.trim() ? ' / "' + l2.value.trim() + '"' : '') + '.\n';
+      var msg = document.getElementById('f-message');
+      msg.value = line + (msg.value && msg.value.indexOf('Board design:') !== 0 ? '\n' + msg.value : '');
+      document.getElementById('f-interest').value = 'Cheeseboard or serving board';
+      var c = document.getElementById('contact'); if (c) c.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(function () { var n = document.getElementById('f-name'); if (n) n.focus({ preventScroll: true }); }, 700);
+    });
+  }
+
+  /* Christmas countdown (shown from 1 Oct to 24 Dec only) */
+  var xc = document.getElementById('xmas-count');
+  if (xc) {
+    var now = new Date(), y = now.getFullYear();
+    var start = new Date(y, 9, 1), xmas = new Date(y, 11, 25), today = new Date(y, now.getMonth(), now.getDate());
+    var days = Math.round((xmas - today) / 86400000);
+    if (today >= start && days > 0) {
+      xc.textContent = days + (days === 1 ? ' day' : ' days') + ' until Christmas. Order early.';
+      xc.hidden = false;
+    }
+  }
+
   /* "Enquire about this" links pre-select the product in the form */
   var interest = document.getElementById('f-interest');
   document.querySelectorAll('[data-interest]').forEach(function (a) {
