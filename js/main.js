@@ -200,8 +200,19 @@
       svg.setAttribute('aria-label', 'Preview of a ' + sh.name + ' in ' + wd.name + ' engraved with ' + (a || 'nothing yet') + (b ? ', ' + b.toLowerCase() : ''));
     }
     document.querySelectorAll('#designer input').forEach(function (el) { el.addEventListener('input', draw); el.addEventListener('change', draw); });
+    function repaint() {
+      draw();
+      /* Safari can leave SVG text unpainted after a web font arrives, so nudge it to repaint */
+      svg.style.display = 'none'; void svg.getBoundingClientRect(); svg.style.display = '';
+    }
     draw();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if (document.fonts) {
+      var faces = ['italic 400 40px Bitter', '600 20px Bitter', '400 40px Bitter', '400 40px "Alfa Slab One"'];
+      if (document.fonts.load) Promise.all(faces.map(function (f) { return document.fonts.load(f); })).then(repaint, repaint);
+      if (document.fonts.ready) document.fonts.ready.then(repaint);
+      if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', repaint);
+    }
+    window.addEventListener('load', repaint);
 
     document.getElementById('designer-send').addEventListener('click', function () {
       var sh = SHAPES[val('d-shape')], wd = WOODS[val('d-wood')], ft = FONTS[val('d-font')];

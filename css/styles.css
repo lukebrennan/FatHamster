@@ -221,7 +221,7 @@ p { margin: 0 0 1em; }
 .field input::placeholder, .field textarea::placeholder { color: #7a6a55; opacity: 1; }
 
 /* Board designer */
-.designer { background: var(--paper); border-block: 1px solid var(--cream-deep); padding-block: clamp(3.5rem, 8vw, 6rem); }
+.designer { overflow-x: hidden; background: var(--paper); border-block: 1px solid var(--cream-deep); padding-block: clamp(3.5rem, 8vw, 6rem); }
 .designer-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 3.5rem; align-items: center; }
 .designer-copy > p { color: var(--walnut-soft); max-width: 32em; }
 .designer-controls { margin-top: 1.4rem; }
@@ -560,18 +560,19 @@ html.is-loading { overflow: hidden; }
   .designer-copy > p { display: none; }
   .designer-stage { order: 3; padding: .4rem; border-radius: 16px; box-shadow: inset 0 0 0 5px rgba(255,255,255,.35); }
   #board-svg { max-height: 180px; margin-inline: auto; }
-  .designer-controls { order: 4; display: grid; grid-template-columns: 1fr 1fr; gap: 0 .6rem; margin-top: 0; }
+  .designer-controls { order: 4; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 .7rem; margin-top: 0; }
+  .designer-controls .field { min-width: 0; }
+  .designer-controls .field input { min-width: 0; width: 100%; }
   .designer-controls .opt, .designer-controls .btn, .designer-controls .form-note { grid-column: 1 / -1; }
-  .designer-controls .field { margin-bottom: .55rem; }
-  .designer-controls .field label { font-size: .8rem; margin-bottom: .2rem; }
-  .designer-controls .field input { padding: .5rem .7rem; font-size: .95rem; }
-  .opt { flex-wrap: nowrap; gap: .35rem; margin-bottom: .5rem; overflow-x: auto; scrollbar-width: none; }
-  .opt::-webkit-scrollbar { display: none; }
-  .opt-label { flex: none; margin: 0 .25rem 0 0; font-size: .8rem; min-width: 4.4rem; }
-  .opt label span { padding: .32rem .75rem; font-size: .84rem; white-space: nowrap; }
-  .timber label span { font-size: 0; padding: .28rem; border-width: 2px; }
-  .timber .sw { margin: 0; width: 1.4rem; height: 1.4rem; }
-  .designer-controls .btn { padding: .7rem 1.4rem; margin-top: .1rem; }
+  .designer-controls .field label { font-size: .85rem; margin-bottom: .3rem; }
+  .designer-controls .field { margin-bottom: .9rem; }
+  .designer-controls .field input { min-height: 48px; padding: .6rem .8rem; font-size: 1rem; }
+  .opt { flex-wrap: wrap; gap: .6rem; margin-bottom: 1.1rem; align-items: center; }
+  .opt-label { flex: 0 0 100%; margin: 0 0 .1rem; font-size: .88rem; min-width: 0; }
+  .opt label span { min-height: 46px; padding: .5rem 1.15rem; font-size: .95rem; white-space: nowrap; }
+  .timber label span { width: 46px; min-height: 46px; padding: 0; font-size: 0; justify-content: center; }
+  .timber .sw { margin: 0; width: 1.6rem; height: 1.6rem; }
+  .designer-controls .btn { padding: .9rem 1.4rem; min-height: 52px; margin-top: .2rem; }
   .designer-controls .form-note { font-size: .78rem; margin-top: .6rem; }
 }
 
