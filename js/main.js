@@ -106,6 +106,29 @@
       .catch(function () { /* keep the static photos */ });
   }
 
+  /* Highlight the nav link for the section being read */
+  var spyLinks = {};
+  document.querySelectorAll('.nav a[href^="#"]:not(.btn)').forEach(function (a) { spyLinks[a.getAttribute('href').slice(1)] = a; });
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        Object.keys(spyLinks).forEach(function (id) {
+          if (id === en.target.id) spyLinks[id].setAttribute('aria-current', 'true');
+          else spyLinks[id].removeAttribute('aria-current');
+        });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    Object.keys(spyLinks).forEach(function (id) { var el = document.getElementById(id); if (el) spy.observe(el); });
+
+    /* Floating quote button: shown after the hero, hidden once the contact section is on screen */
+    var fab = document.querySelector('.float-cta');
+    var pastHero = false, atContact = false;
+    function updateFab() { fab.classList.toggle('show', pastHero && !atContact); }
+    new IntersectionObserver(function (e) { pastHero = !e[0].isIntersecting && e[0].boundingClientRect.top < 0; updateFab(); }).observe(document.getElementById('top'));
+    new IntersectionObserver(function (e) { atContact = e[0].isIntersecting; updateFab(); }, { rootMargin: '0px 0px -10% 0px' }).observe(document.getElementById('contact'));
+  }
+
   /* "Enquire about this" links pre-select the product in the form */
   var interest = document.getElementById('f-interest');
   document.querySelectorAll('[data-interest]').forEach(function (a) {
@@ -117,6 +140,7 @@
   var form = document.getElementById('enquiry');
   var note = document.getElementById('form-note');
   var TO = 'hello@fathamster.co.uk';
+  if (form.getAttribute('data-endpoint')) note.textContent = 'Phil will reply to you by email.';
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -131,12 +155,31 @@
       note.textContent = 'Please add your name and a valid email address.';
       return;
     }
-    var body = 'Name: ' + name.value.trim() + '\n' +
-               'Email: ' + email.value.trim() + '\n' +
-               'Interested in: ' + form.elements.interest.value + '\n\n' +
-               form.elements.message.value.trim();
-    var subject = 'Enquiry: ' + form.elements.interest.value;
-    note.textContent = 'Opening your email app. If nothing happens, email ' + TO + ' directly.';
-    window.location.href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var details = {
+      name: name.value.trim(),
+      email: email.value.trim(),
+      interest: form.elements.interest.value,
+      message: form.elements.message.value.trim(),
+      _subject: 'Website enquiry: ' + form.elements.interest.value
+    };
+    if (form.elements._gotcha && form.elements._gotcha.value) return; /* bot */
+
+    function viaEmailApp() {
+      var body = 'Name: ' + details.name + '\nEmail: ' + details.email + '\nInterested in: ' + details.interest + '\n\n' + details.message;
+      note.textContent = 'Opening your email app. If nothing happens, email ' + TO + ' directly.';
+      window.location.href = 'mailto:' + TO + '?subject=' + encodeURIComponent('Enquiry: ' + details.interest) + '&body=' + encodeURIComponent(body);
+    }
+
+    var endpoint = form.getAttribute('data-endpoint');
+    if (!endpoint || !window.fetch) { viaEmailApp(); return; }
+
+    var btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(details) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); })
+      .then(function () {
+        form.innerHTML = '<div class="thanks" role="status"><h3>Thank you, ' + details.name.replace(/[<>&"]/g, '') + '</h3><p>Your enquiry has been sent. Phil will be in touch by email soon.</p></div>';
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = 'Send enquiry'; viaEmailApp(); });
   });
 })();

@@ -35,8 +35,21 @@
   <link rel="preload" href="assets/fonts/alfa-slab-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/bitter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="assets/img/bespoke-cedar-garden-pergola-1100.webp" imagesrcset="assets/img/bespoke-cedar-garden-pergola-480.webp 480w, assets/img/bespoke-cedar-garden-pergola-800.webp 800w, assets/img/bespoke-cedar-garden-pergola-1100.webp 1100w" imagesizes="(max-width: 820px) 65vw, 520px" fetchpriority="high">
-  <link rel="stylesheet" href="css/styles.css?v=12">
-  <script>document.documentElement.classList.add('js');</script>
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <script>
+    /* Adds .js, and .first-visit/.is-loading once per browser session (not for reduced motion, #links or data-saver) */
+    (function (d) {
+      d.classList.add('js');
+      try {
+        var seen = sessionStorage.getItem('fh-seen');
+        var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var deepLink = location.hash.length > 1;
+        var saver = navigator.connection && navigator.connection.saveData;
+        if (!seen && !calm && !deepLink && !saver) d.classList.add('first-visit', 'is-loading');
+      } catch (e) {}
+    })(document.documentElement);
+  </script>
+  <noscript><style>.loader{display:none!important}</style></noscript>
 
   <script type="application/ld+json">
   {
@@ -67,6 +80,12 @@
   </script>
 </head>
 <body>
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader-badge"><img src="assets/logo-400.webp" alt="" width="400" height="400"></div>
+    <div class="loader-name">The Fat Hamster Wood Shop</div>
+    <div class="loader-sub">Handmade in Prescot</div>
+    <div class="loader-bar"></div>
+  </div>
   <a class="skip" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -297,6 +316,13 @@
               <a class="card-link" href="#contact" data-interest="Garden piece">Enquire about this</a>
             </div>
           </article>
+          <article class="card card-cta reveal">
+            <div class="card-body">
+              <h3>Something else in mind?</h3>
+              <p>If it is not here, Phil can probably make it. Tell him your idea, a rough size and where it will live, and he will come back with a price.</p>
+              <a class="btn btn-light" href="#contact" data-interest="Something else">Start a custom commission</a>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -483,7 +509,9 @@
           </ul>
         </div>
 
-        <form class="enquiry reveal" id="enquiry" novalidate>
+        <!-- To receive enquiries by email without an email app: create a free form at formspree.io
+             with Phil's address and paste its URL (https://formspree.io/f/xxxx) into data-endpoint. -->
+        <form class="enquiry reveal" id="enquiry" data-endpoint="" novalidate>
           <div class="field">
             <label for="f-name">Your name</label>
             <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -512,6 +540,7 @@
             <label for="f-message">Tell me about it</label>
             <textarea id="f-message" name="message" rows="4" placeholder="Rough size, timber, where it will go, any deadline"></textarea>
           </div>
+          <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>
           <button class="btn" type="submit">Send enquiry</button>
           <p class="form-note" id="form-note" role="status">This opens your email app with the details filled in.</p>
         </form>
@@ -530,6 +559,8 @@
     </div>
   </footer>
 
+  <a class="float-cta" href="#contact" aria-label="Get a quote">Get a quote</a>
+
   <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
     <button class="lb-close" type="button" aria-label="Close">&times;</button>
     <button class="lb-nav lb-prev" type="button" aria-label="Previous photo">&#8249;</button>
@@ -540,6 +571,26 @@
     <button class="lb-nav lb-next" type="button" aria-label="Next photo">&#8250;</button>
   </dialog>
 
-  <script src="js/main.js?v=12"></script>
+  <script src="js/main.js?v=14"></script>
+  <script>
+    /* Loading screen: shown for at least 1.5s, until the page and fonts are ready, never longer than 3.5s */
+    (function () {
+      var d = document.documentElement, l = document.getElementById('loader');
+      if (!l) return;
+      if (!d.classList.contains('is-loading')) { l.parentNode.removeChild(l); return; }
+      var start = Date.now(), done = false;
+      function finish() {
+        if (done) return; done = true;
+        try { sessionStorage.setItem('fh-seen', '1'); } catch (e) {}
+        d.classList.remove('is-loading');
+        l.classList.add('loader-done');
+        setTimeout(function () { if (l.parentNode) l.parentNode.removeChild(l); }, 1100);
+      }
+      var loaded = document.readyState === 'complete' ? Promise.resolve() : new Promise(function (r) { window.addEventListener('load', r); });
+      var fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      Promise.all([loaded, fonts]).then(function () { setTimeout(finish, Math.max(0, 1500 - (Date.now() - start))); });
+      setTimeout(finish, 3500);
+    })();
+  </script>
 </body>
 </html>
