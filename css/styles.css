@@ -207,6 +207,22 @@ blockquote {
 }
 blockquote p { margin: 0; }
 
+/* Case study */
+.case { background: var(--walnut); color: var(--cream); padding-block: clamp(3.5rem, 8vw, 6rem); }
+.case h2 { color: var(--cream); }
+.case .eyebrow { color: var(--oak); }
+.case-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 4rem; align-items: center; }
+.case-photo { margin: 0; max-width: 440px; justify-self: center; }
+.case-photo button { display: block; width: 100%; padding: 0; border: 6px solid var(--cream); border-radius: var(--radius); background: var(--cream); cursor: zoom-in; overflow: hidden; box-shadow: 0 22px 44px rgba(0,0,0,.45); transform: rotate(-1.8deg); transition: transform .4s ease; }
+.case-photo button:hover { transform: rotate(0deg) scale(1.02); }
+.case-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; }
+.case-photo figcaption { margin-top: 1rem; font-size: .9rem; color: #d9ccb4; font-style: italic; text-align: center; }
+.case-grid > div > p { color: #e6dbc4; max-width: 34em; }
+.chips { list-style: none; padding: 0; margin: 1.4rem 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.chips li { border: 1.5px solid var(--oak); color: var(--cream); border-radius: 999px; padding: .35rem 1rem; font-weight: 600; font-size: .95rem; }
+.btn-outline-light { background: transparent; color: var(--cream); border-color: rgba(246,240,228,.6); }
+.btn-outline-light:hover { background: var(--cream); color: var(--walnut); border-color: var(--cream); }
+
 /* Contact (saw-tooth top edge echoes the logo) */
 .contact { position: relative; background: var(--walnut); color: var(--cream); padding-block: clamp(4rem, 8vw, 6.5rem); margin-top: 18px; }
 .contact::before {
@@ -316,7 +332,7 @@ blockquote p { margin: 0; }
   .foot { grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .credit { text-align: center; }
   .hero-visual::before { inset: 1.2rem -.4rem .5rem 2rem; }
-  .hero-grid, .feature-grid, .feature-flip .feature-grid, .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.2rem; }
+  .hero-grid, .feature-grid, .feature-flip .feature-grid, .about-grid, .contact-grid, .case-grid { grid-template-columns: 1fr; gap: 2.2rem; }
   .hero-visual { padding: 0 0 1.5rem 1rem; }
   .hero-photo { border-radius: 120px 12px 12px 12px; }
   .nav-toggle { display: block; }
