@@ -23,16 +23,55 @@
   /* Header shrinks and gains a shadow once the page scrolls; hero photo drifts slightly (parallax) */
   var header = document.querySelector('.site-header');
   var heroPhoto = document.querySelector('.hero-photo');
+  var progress = document.querySelector('.progress');
   var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var ticking = false;
   function onScroll() {
     var y = window.pageYOffset || document.documentElement.scrollTop;
     header.classList.toggle('scrolled', y > 24);
+    if (progress) { var max = document.documentElement.scrollHeight - window.innerHeight; progress.style.setProperty('--p', max > 0 ? Math.min(1, y / max).toFixed(4) : 0); }
     if (heroPhoto && !calm && y < 900) heroPhoto.style.setProperty('--py', String(Math.round(y * -0.06)));
     ticking = false;
   }
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
+
+  /* Photos fade in once loaded */
+  document.querySelectorAll('img[loading="lazy"]').forEach(function (img) {
+    function done() { img.classList.add('is-loaded'); }
+    if (img.complete && img.naturalWidth) done(); else { img.addEventListener('load', done); img.addEventListener('error', done); }
+  });
+
+  /* Hero headline: split into words so they can slide in one by one */
+  var h1 = document.querySelector('.hero-copy h1');
+  if (h1 && !calm) {
+    var wi = 0;
+    (function split(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            var w = document.createElement('span'), inner = document.createElement('span');
+            w.className = 'w'; inner.textContent = part; inner.style.setProperty('--i', wi++); w.appendChild(inner); frag.appendChild(w);
+          });
+          n.parentNode.replaceChild(frag, n);
+        } else if (n.nodeType === 1) { split(n); }
+      });
+    })(h1);
+    h1.classList.add('split');
+  }
+
+  /* Soft glow that follows the cursor over product cards (mouse devices only) */
+  var cardsEl = document.querySelector('#makes .cards');
+  if (cardsEl && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    cardsEl.addEventListener('pointermove', function (e) {
+      var card = e.target.closest('.card'); if (!card) return;
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px'); card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  }
 
   /* Scroll reveal */
   var reveals = document.querySelectorAll('.reveal');
@@ -100,7 +139,7 @@
       cards.forEach(function (card) {
         var show = f === 'all' || card.getAttribute('data-cat') === f;
         card.hidden = !show;
-        if (show) card.classList.add('in');
+        if (show) { card.classList.add('in'); card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
       });
       var track = document.querySelector('#makes .cards'); if (track) track.scrollLeft = 0;
     });
@@ -253,16 +292,6 @@
       xc.hidden = false;
     }
   }
-
-  /* Share button: native share sheet on phones, copy-link everywhere else */
-  var shareBtn = document.getElementById('share-btn'), toast = document.getElementById('toast');
-  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(showToast.t); showToast.t = setTimeout(function () { toast.classList.remove('show'); }, 2600); }
-  if (shareBtn) shareBtn.addEventListener('click', function () {
-    var data = { title: 'The Fat Hamster Wood Shop', text: 'Bespoke handmade woodwork from a small Prescot workshop.', url: 'https://fathamster.co.uk/' };
-    if (navigator.share) { navigator.share(data).catch(function () { /* cancelled */ }); }
-    else if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data.url).then(function () { showToast('Link copied'); }, function () { showToast(data.url); }); }
-    else { showToast(data.url); }
-  });
 
   /* "Enquire about this" links pre-select the product in the form */
   var interest = document.getElementById('f-interest');
