@@ -255,11 +255,11 @@ p { margin: 0 0 1em; }
   position: relative; z-index: 1;
   box-shadow: 0 0 0 6px var(--cream);
 }
-.steps li:not(:last-child)::before {
-  content: ""; position: absolute; top: 1.5rem; left: 3rem; right: -2rem;
-  border-top: 2px dashed #c9b999;
-}
+.steps li:not(:last-child)::before { display: none; }
 .steps p { color: var(--walnut-soft); }
+.step-img { position: relative; margin-bottom: 2.2rem; }
+.step-img img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius); box-shadow: 0 8px 20px rgba(59,47,32,.18); }
+.step-img .num { position: absolute; left: .9rem; bottom: -1.45rem; margin: 0; }
 
 /* About */
 .about { border-top: 1px solid var(--cream-deep); }
@@ -348,6 +348,11 @@ blockquote p { margin: 0; }
 .insta { display: inline-flex; align-items: center; gap: .55rem; color: #e6dbc4; text-decoration: none; font-weight: 600; padding: .45rem 1rem; border: 1.5px solid rgba(230,219,196,.3); border-radius: 999px; transition: background .2s, color .2s, border-color .2s; }
 .insta:hover { background: var(--oak); border-color: var(--oak); color: var(--walnut-deep); }
 .insta .ico { margin: 0; width: 1.3rem; height: 1.3rem; }
+button.insta { font: inherit; font-weight: 600; background: none; cursor: pointer; }
+.insta { min-height: 44px; }
+.foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; }
+.toast { position: fixed; left: 50%; bottom: calc(1.4rem + env(safe-area-inset-bottom)); z-index: 90; transform: translate(-50%, 160%); background: var(--walnut); color: var(--cream); font-weight: 600; font-size: .95rem; padding: .75rem 1.3rem; border-radius: 999px; box-shadow: 0 10px 28px rgba(0,0,0,.35); transition: transform .35s ease; pointer-events: none; }
+.toast.show { transform: translate(-50%, 0); }
 
 /* Lightbox */
 .lightbox { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; width: 100%; height: 100%; color: #fff; }
@@ -553,7 +558,9 @@ html.is-loading { overflow: hidden; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; }
   .steps h3 { font-size: 1.05rem; }
   .steps p { font-size: .9rem; }
-  .num { width: 2.5rem; height: 2.5rem; font-size: 1.05rem; margin-bottom: .6rem; }
+  .num { width: 2.5rem; height: 2.5rem; font-size: 1.05rem; }
+  .step-img { margin-bottom: 2rem; }
+  .step-img .num { left: .6rem; bottom: -1.25rem; }
 }
 @media (max-width: 340px) { .steps { grid-template-columns: 1fr; } }
 

@@ -254,6 +254,16 @@
     }
   }
 
+  /* Share button: native share sheet on phones, copy-link everywhere else */
+  var shareBtn = document.getElementById('share-btn'), toast = document.getElementById('toast');
+  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(showToast.t); showToast.t = setTimeout(function () { toast.classList.remove('show'); }, 2600); }
+  if (shareBtn) shareBtn.addEventListener('click', function () {
+    var data = { title: 'The Fat Hamster Wood Shop', text: 'Bespoke handmade woodwork from a small Prescot workshop.', url: 'https://fathamster.co.uk/' };
+    if (navigator.share) { navigator.share(data).catch(function () { /* cancelled */ }); }
+    else if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data.url).then(function () { showToast('Link copied'); }, function () { showToast(data.url); }); }
+    else { showToast(data.url); }
+  });
+
   /* "Enquire about this" links pre-select the product in the form */
   var interest = document.getElementById('f-interest');
   document.querySelectorAll('[data-interest]').forEach(function (a) {
