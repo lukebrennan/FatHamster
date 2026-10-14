@@ -2,6 +2,7 @@
 
 import { SHAPES, SHAPE_ORDER, silhouettePath } from './shapes.js';
 import {
+  boxFits,
   WOODS, WOOD_ORDER, FONTS, FONT_ORDER, RESINS, RESIN_ORDER, ICONS, ICON_ORDER,
   createLayers, compose, getGrain, ensureFont, woodThumb
 } from './textures.js';
@@ -66,7 +67,7 @@ function template() {
   }).join('');
   const resinTiles = RESIN_ORDER.map((id, i) => {
     const r = RESINS[id];
-    const inner = id === 'none' ? '<i class="bd-dot bd-none" aria-hidden="true"></i>' : '<i class="bd-dot" style="--a:' + r.a + ';--b:' + r.b + '" aria-hidden="true"></i>';
+    const inner = id === 'none' ? '<i class="bd-dot bd-none" aria-hidden="true"></i>' : '<i class="bd-dot" style="--a:' + r.c + ';--b:' + r.c + '" aria-hidden="true"></i>';
     return tile('bd-resin', id, inner, i === 0, r.name);
   }).join('');
   const iconTiles = ICON_ORDER.map((id, i) => {
@@ -97,7 +98,7 @@ function template() {
       steps.map((s, i) => '<button type="button" role="tab" id="bd-tab-' + i + '" aria-controls="bd-pane-' + i + '" aria-selected="' + (i === 0) + '" tabindex="' + (i === 0 ? 0 : -1) + '"><b>' + (i + 1) + '</b><span>' + s + '</span></button>').join('') +
     '</div>' +
     '<div class="bd-panes">' +
-      '<section class="bd-pane is-on" role="tabpanel" id="bd-pane-0" aria-labelledby="bd-tab-0"><fieldset><legend class="bd-q">Pick a shape</legend><div class="bd-tiles" style="--cols:4">' + shapeTiles + '</div></fieldset></section>' +
+      '<section class="bd-pane is-on" role="tabpanel" id="bd-pane-0" aria-labelledby="bd-tab-0"><fieldset><legend class="bd-q">Pick a shape</legend><div class="bd-tiles" style="--cols:4">' + shapeTiles + '</div></fieldset><p class="bd-tip">Every board is made by hand, so sizes can be tweaked. Pick the closest outline and tell Phil what you would change.</p></section>' +
       '<section class="bd-pane" role="tabpanel" id="bd-pane-1" aria-labelledby="bd-tab-1"><fieldset><legend class="bd-q">Pick a timber</legend><div class="bd-tiles" style="--cols:4">' + woodTiles + '</div></fieldset><p class="bd-tip">Previews only. Phil confirms the real timber with you.</p></section>' +
       '<section class="bd-pane" role="tabpanel" id="bd-pane-2" aria-labelledby="bd-tab-2">' +
         '<div class="bd-fields">' +
@@ -468,21 +469,15 @@ export function init(root) {
       if (!h || h.px === undefined || (h.px === 0 && h.py === 0)) return;
       const bb = SHAPES[state.shape].bbox, k = layers.w / bb.w, H = bb.h * k, W = layers.w;
       let nx = clamp(drag.ox + (h.px - drag.px) / W, -0.45, 0.45), ny = clamp(drag.oy - (h.py - drag.py) / H, -0.45, 0.45);
-      // keep the words on the wood: pull back until all four corners of the text box sit inside the board
-      const body = SHAPES[state.shape].body, bx = drag.box;
-      const X = (v) => (v - bb.x0) * k, Y = (v) => (bb.y1 - v) * k;
-      const inside = (px, py) => body.type === 'circle'
-        ? Math.hypot(px - X(body.cx), py - Y(body.cy)) <= body.r * k * 0.95
-        : px >= X(body.x0) + 10 && px <= X(body.x1) - 10 && py >= Y(body.y1) + 10 && py <= Y(body.y0) - 10;
+      // keep the words on the wood: pull back until the text box fits on the board, clear of any resin
+      const bx = drag.box;
       if (bx) {
-        const tx = nx, ty = ny;
+        const tx = nx, ty = ny; let ok = false;
         for (let t = 1; t >= 0; t -= 0.1) {
-          const dx = (drag.ox + (tx - drag.ox) * t - drag.ox) * W, dy = -(drag.oy + (ty - drag.oy) * t - drag.oy) * H;
-          if (inside(bx.x + dx, bx.y + dy) && inside(bx.x + bx.w + dx, bx.y + dy) && inside(bx.x + dx, bx.y + bx.h + dy) && inside(bx.x + bx.w + dx, bx.y + bx.h + dy)) {
-            nx = drag.ox + (tx - drag.ox) * t; ny = drag.oy + (ty - drag.oy) * t; break;
-          }
-          if (t < 0.05) { nx = drag.ox; ny = drag.oy; }
+          const dx = (tx - drag.ox) * t * W, dy = -(ty - drag.oy) * t * H;
+          if (boxFits(SHAPES[state.shape], state, k, { x: bx.x + dx, y: bx.y + dy, w: bx.w, h: bx.h })) { nx = drag.ox + (tx - drag.ox) * t; ny = drag.oy + (ty - drag.oy) * t; ok = true; break; }
         }
+        if (!ok) { nx = drag.ox; ny = drag.oy; }
       }
       if (Math.abs(nx - state.ox) > 0.0005 || Math.abs(ny - state.oy) > 0.0005) { drag.moved = true; state.ox = nx; state.oy = ny; $('#bd-ox').value = nx; $('#bd-oy').value = ny; changed(false); }
       return;

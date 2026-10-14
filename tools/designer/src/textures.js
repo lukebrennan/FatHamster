@@ -26,11 +26,11 @@ export const FONT_ORDER = ['classic', 'bold', 'clean', 'script', 'elegant'];
 
 export const RESINS = {
   none:     { name: 'None' },
-  ocean:    { name: 'Ocean',    a: '#0b5f94', b: '#59c4e6', hi: '#d4f6ff' },
-  forest:   { name: 'Forest',   a: '#0c5a3d', b: '#5fc98e', hi: '#d6ffe6' },
-  amber:    { name: 'Amber',    a: '#c9740f', b: '#ffcf70', hi: '#fff0c4' },
-  midnight: { name: 'Midnight', a: '#0c1233', b: '#4658c8', hi: '#c9d2ff' },
-  rose:     { name: 'Rose',     a: '#9c2552', b: '#ff9bb8', hi: '#ffe0ea' }
+  ocean:    { name: 'Ocean',    c: '#1b7fb3' },
+  forest:   { name: 'Forest',   c: '#17714b' },
+  amber:    { name: 'Amber',    c: '#d98a1f' },
+  midnight: { name: 'Midnight', c: '#18215e' },
+  rose:     { name: 'Rose',     c: '#bf3d6a' }
 };
 export const RESIN_ORDER = ['none', 'ocean', 'forest', 'amber', 'midnight', 'rose'];
 
@@ -124,8 +124,8 @@ function resinBand(shape, k, X, Y, seed) {
   const x0 = b.type === 'circle' ? b.cx - b.r : b.x0, x1 = b.type === 'circle' ? b.cx + b.r : b.x1;
   const y0 = b.type === 'circle' ? b.cy - b.r : b.y0, y1 = b.type === 'circle' ? b.cy + b.r : b.y1;
   const bh = y1 - y0;
-  const yc = b.type === 'circle' ? b.cy - b.r * 0.46 : y0 + bh * 0.25;
-  const T = b.type === 'circle' ? b.r * 0.24 : bh * 0.22;
+  const yc = b.type === 'circle' ? b.cy - b.r * 0.46 : y0 + bh * 0.2;
+  const T = b.type === 'circle' ? b.r * 0.24 : bh * 0.19;
   const A = bh * 0.055;
   const N = 90, top = [], bot = [];
   const span = x1 - x0 + 60;
@@ -152,15 +152,49 @@ function measure(ctx, text, fontId, px, spacing) {
   return w - spacing;
 }
 
+/* world y of the top edge of the resin river (matches resinBand) */
+function resinTop(shape) {
+  const b = shape.body;
+  if (b.type === 'circle') return b.cy - b.r * 0.46 + b.r * 0.12 + b.r * 0.11 * 1.35;
+  const bh = b.y1 - b.y0;
+  return b.y0 + bh * 0.2 + bh * 0.095 + bh * 0.055 * 1.35;
+}
+
+/* does a text box (in texture pixels) sit fully on the wood, clear of the resin? */
+export function boxFits(shape, state, k, box) {
+  const bb = shape.bbox, body = shape.body;
+  const X = (x) => (x - bb.x0) * k, Y = (y) => (bb.y1 - y) * k;
+  const inside = (px, py) => body.type === 'circle'
+    ? Math.hypot(px - X(body.cx), py - Y(body.cy)) <= body.r * k * 0.97
+    : px >= X(body.x0) + 4 && px <= X(body.x1) - 4 && py >= Y(body.y1) + 4 && py <= Y(body.y0) - 4;
+  if (!(inside(box.x, box.y) && inside(box.x + box.w, box.y) && inside(box.x, box.y + box.h) && inside(box.x + box.w, box.y + box.h))) return false;
+  if (state.resin !== 'none' && shape.id !== 'tapas' && box.y + box.h > Y(resinTop(shape)) - 3) return false;
+  return true;
+}
+
 function layoutText(ctx, state, shape, k, X, Y, lines) {
+  // shrink in small steps until the whole block (words and icon) sits on the board
+  let out = null;
+  for (let shrink = 1; shrink > 0.2; shrink *= 0.94) {
+    out = placeText(ctx, state, shape, k, X, Y, lines, shrink);
+    if (!out.box || boxFits(shape, state, k, out.box)) break;
+  }
+  return out;
+}
+
+function placeText(ctx, state, shape, k, X, Y, lines, shrink) {
   const z = shape.zone, bb = shape.bbox;
   const W = bb.w * k, H = bb.h * k;
   const zw = z.w * k, zh = z.h * k;
   let cx = X(z.cx) + state.ox * W;
   let cy = Y(z.cy) - state.oy * H;
-  if (state.resin !== 'none' && shape.id !== 'tapas') cy -= zh * 0.13;
+  if (state.resin !== 'none' && shape.id !== 'tapas') {
+    // centre the words in the wood above the resin
+    const b = shape.body, topW = b.type === 'circle' ? b.cy + b.r * 0.8 : b.y1 - 12;
+    cy = Y((resinTop(shape) + topW) / 2) - state.oy * H;
+  }
   const hasIcon = state.icon !== 'none';
-  const sz = state.size;
+  const sz = state.size * shrink;
   const out = { lines: [], icon: null, box: null };
   const t1 = lines[0], t2 = lines[1].toUpperCase();
   const f = state.font;
@@ -241,27 +275,10 @@ export function compose(L, state, shape, grain, shown) {
   if (state.resin !== 'none') {
     const rs = RESINS[state.resin];
     const band = resinBand(shape, k, X, Y, 1.3 + shape.bbox.w * 0.001);
-    cc.save();
-    const g = cc.createLinearGradient(band.x0, 0, band.x1, 0);
-    g.addColorStop(0, rs.a); g.addColorStop(0.5, rs.b); g.addColorStop(1, rs.a);
-    cc.fillStyle = g; cc.globalAlpha = 0.93; cc.fill(band.path);
-    cc.globalAlpha = 1;
-    cc.clip(band.path);
-    // wood grain showing through the resin
-    cc.globalCompositeOperation = 'multiply'; cc.globalAlpha = 0.2; cc.drawImage(grain, 0, 0, W, H);
-    // swirl highlights
-    cc.globalCompositeOperation = 'source-over'; cc.globalAlpha = 0.34; cc.strokeStyle = rs.hi; cc.lineCap = 'round';
-    [0.28, 0.5, 0.72].forEach((f, i) => {
-      cc.lineWidth = (2.6 - i * 0.6) * k * 0.5;
-      cc.beginPath();
-      band.top.forEach((p, j) => { const q = band.bot[j]; const y = p[1] + (q[1] - p[1]) * f + Math.sin(j * 0.31 + i * 2) * 3 * k * 0.5; j ? cc.lineTo(p[0], y) : cc.moveTo(p[0], y); });
-      cc.stroke();
-    });
-    cc.restore();
-    // resin lip
-    cc.save(); cc.lineWidth = 1.8 * k * 0.5; cc.strokeStyle = 'rgba(0,0,0,.4)'; cc.stroke(band.path); cc.restore();
+    // poured resin is one flat, glossy colour
+    cc.save(); cc.fillStyle = rs.c; cc.fill(band.path); cc.restore();
     // heights and gloss
-    bc.save(); bc.fillStyle = 'rgb(92,92,92)'; bc.fill(band.path); bc.lineWidth = 2.4 * k * 0.5; bc.strokeStyle = 'rgb(40,40,40)'; bc.stroke(band.path); bc.restore();
+    bc.save(); bc.fillStyle = 'rgb(140,140,140)'; bc.fill(band.path); bc.restore();
     rc.save(); rc.scale(0.5, 0.5); rc.fillStyle = 'rgb(16,16,16)'; rc.fill(band.path); rc.restore();
   }
 
