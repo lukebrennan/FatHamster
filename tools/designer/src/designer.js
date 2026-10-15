@@ -107,11 +107,11 @@ function template() {
         '</div>' +
         '<fieldset><legend class="bd-q">Lettering</legend><div class="bd-tiles bd-tiles-s" style="--cols:5">' + fontTiles + '</div></fieldset>' +
         '<div class="bd-row"><span class="bd-q">Finish</span><div class="bd-seg2" role="radiogroup" aria-label="Finish"><label><input type="radio" name="bd-finish" value="engrave" checked><span>Engraved</span></label><label><input type="radio" name="bd-finish" value="burn"><span>Burnt</span></label></div></div>' +
-        '<div class="bd-sliders">' +
+        '<details class="bd-adjust" open><summary>Size and position</summary><div class="bd-sliders">' +
           '<label class="bd-sl"><span>Size</span><input type="range" id="bd-size" min="0.6" max="1.5" step="0.02" value="1" aria-label="Text size"></label>' +
           '<label class="bd-sl"><span>Up / down</span><input type="range" id="bd-oy" min="-0.4" max="0.4" step="0.01" value="0" aria-label="Move words up or down"></label>' +
           '<label class="bd-sl"><span>Left / right</span><input type="range" id="bd-ox" min="-0.4" max="0.4" step="0.01" value="0" aria-label="Move words left or right"></label>' +
-        '</div>' +
+        '</div></details>' +
         '<p class="bd-tip bd-tip-mouse">Tip: you can drag the words straight on the board.</p>' +
       '</section>' +
       '<section class="bd-pane" role="tabpanel" id="bd-pane-3" aria-labelledby="bd-tab-3">' +
@@ -300,13 +300,25 @@ export function init(root) {
   const labels = ['Shape', 'Timber', 'Words', 'Extras', 'Send'];
   let step = 0;
   function goStep(i, focusTab) {
+    const prev = step;
     step = clamp(i, 0, 4);
+    const panesEl = $('.bd-panes');
+    if (panesEl) panesEl.dataset.dir = step >= prev ? 'fwd' : 'back';
     $$('.bd-steps [role="tab"]').forEach((t, n) => { const on = n === step; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; t.classList.toggle('is-done', n < step); if (on && focusTab) t.focus(); });
     $$('.bd-pane').forEach((p, n) => p.classList.toggle('is-on', n === step));
     const back = $('[data-act="back"]'), next = $('[data-act="next"]');
     back.hidden = step === 0; next.hidden = step === 4;
     next.textContent = step < 4 ? 'Next: ' + labels[step + 1] : '';
     if (step === 1) paintSwatches();
+    const on = $('.bd-pane.is-on'); if (on) on.scrollTop = 0;
+    if (panesEl) panesEl.scrollTop = 0;
+    moreCheck();
+  }
+
+  /* fade the bottom edge of the options when there is more to scroll to (phones) */
+  function moreCheck() {
+    const el = $('.bd-panes'); if (!el) return;
+    el.classList.toggle('has-more', el.scrollHeight - el.clientHeight - el.scrollTop > 6);
   }
 
   let swatchesDone = false;
@@ -318,6 +330,7 @@ export function init(root) {
   }
 
   /* ---------- toast, hint ---------- */
+  const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(8); } catch (err) { /* ignore */ } };
   let toastT = 0;
   function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2600); }
   let hintT = 0, hintGone = false;
@@ -407,6 +420,7 @@ export function init(root) {
   /* ---------- events ---------- */
   root.addEventListener('change', (e) => {
     const t = e.target;
+    if (t.type === 'radio' || t.type === 'checkbox') buzz();
     if (t.name === 'bd-shape') { state.shape = t.value; state.ox = 0; state.oy = 0; changed(true); }
     else if (t.name === 'bd-wood') { state.wood = t.value; changed(true); }
     else if (t.name === 'bd-font') { state.font = t.value; changed(true); }
@@ -449,6 +463,45 @@ export function init(root) {
     if (mode === '3d' && ready3d && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); view3d.rotateBy(e.key === 'ArrowLeft' ? -0.2 : 0.2); hideHint(); }
   });
   host.addEventListener('dblclick', () => { if (mode === '3d' && ready3d) view3d.resetView(); });
+
+  /* touch: tap the words to jump to the Words step */
+  let tap = null;
+  host.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') tap = { x: e.clientX, y: e.clientY, t: Date.now() }; });
+  host.addEventListener('pointerup', (e) => {
+    if (e.pointerType !== 'touch' || !tap) return;
+    const moved = Math.hypot(e.clientX - tap.x, e.clientY - tap.y), quick = Date.now() - tap.t < 400; tap = null;
+    if (moved > 8 || !quick) return;
+    const h = hitAt(e.clientX, e.clientY, 18);
+    if (h && h.inside && step !== 2) { goStep(2); buzz(); }
+  });
+  host.addEventListener('pointercancel', () => { tap = null; });
+
+  /* swipe the options panel sideways to move between steps */
+  (function () {
+    const panes = $('.bd-panes'); let s = null;
+    panes.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1 || e.target.closest('input[type="range"], input[type="text"]')) { s = null; return; }
+      s = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    panes.addEventListener('touchend', (e) => {
+      if (!s) return;
+      const dx = e.changedTouches[0].clientX - s.x, dy = e.changedTouches[0].clientY - s.y; s = null;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2) { goStep(step + (dx < 0 ? 1 : -1)); buzz(); }
+    }, { passive: true });
+  })();
+
+  $('.bd-panes').addEventListener('scroll', moreCheck, { passive: true });
+  window.addEventListener('resize', moreCheck);
+  const adjustEl = $('.bd-adjust'); if (adjustEl) adjustEl.addEventListener('toggle', () => setTimeout(moreCheck, 0));
+
+  /* the size and position sliders fold away on small screens */
+  const adjust = $('.bd-adjust');
+  if (adjust && window.matchMedia) {
+    const mq = window.matchMedia('(min-width: 901px)');
+    const sync = () => { adjust.open = mq.matches; };
+    sync();
+    if (mq.addEventListener) mq.addEventListener('change', sync);
+  }
 
   /* drag the words straight on the board (mouse and pen; touch uses the sliders) */
   let drag = null;
@@ -523,7 +576,7 @@ export function init(root) {
   if (!can3d) { $('.bd-seg[data-view="3d"]').hidden = true; mode = '2d'; }
   else if (lowPower) mode = '2d';
   if (!touchy) root.classList.add('has-mouse');
-  syncUI(); goStep(0);
+  syncUI(); goStep(0); setTimeout(moreCheck, 400);
   if (fromLink && decode(fromLink)) { goStep(4); }
   recompose();
   if (can3d) load3d();
