@@ -1,7 +1,7 @@
 /* Bundles the designer (src/) and Three.js into js/designer/ for the site.
    Run:  cd tools/designer && npm install && npm run build */
 import { build } from 'esbuild';
-import { rmSync, statSync, readdirSync } from 'node:fs';
+import { rmSync, statSync, readdirSync, copyFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -21,6 +21,8 @@ await build({
   legalComments: 'none',
   logLevel: 'warning'
 });
+
+copyFileSync(new URL('./data/glyphs.json', import.meta.url), out + 'glyphs.json');
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));

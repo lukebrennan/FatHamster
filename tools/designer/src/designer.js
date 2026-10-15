@@ -4,9 +4,10 @@ import { SHAPES, SHAPE_ORDER, silhouettePath } from './shapes.js';
 import {
   boxFits,
   WOODS, WOOD_ORDER, FONTS, FONT_ORDER, RESINS, RESIN_ORDER, ICONS, ICON_ORDER,
-  createLayers, compose, getGrain, ensureFont, woodThumb
+  createLayers, compose, getGrain, ensureFont, woodThumb, layoutText
 } from './textures.js';
 import { createView2D } from './view2d.js';
+import { buildEasel } from './easel.js';
 
 const PH = ['Emma & James', 'Est. 2026'];
 const MAXLEN = [26, 30];
@@ -123,7 +124,7 @@ function template() {
         '<p class="bd-q">Happy with it?</p>' +
         '<dl class="bd-recap"></dl>' +
         '<button type="button" class="btn bd-send" data-act="send">Send this design to Phil</button>' +
-        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button><button type="button" class="bd-link" data-act="copy">Copy link to my design</button></div>' +
+        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button><button type="button" class="bd-link" data-act="copy">Copy link to my design</button><button type="button" class="bd-link" data-act="easel">Download SVG for Easel</button></div>' +
         '<p class="bd-tip">A visual preview only. Phil confirms the timber, size and lettering with you before anything is cut.</p>' +
       '</section>' +
     '</div>' +
@@ -371,6 +372,7 @@ export function init(root) {
     const parts = ['Board design: ' + describe().join(', ') + '.'];
     parts.push('Words: ' + (hadWords ? '"' + (state.a || '') + '"' + (state.b ? ' / "' + state.b + '"' : '') : 'to be decided') + '.');
     parts.push('See my design: ' + designUrl());
+    parts.push('(Phil: open the link and press "Download SVG for Easel" for the cutting file.)');
     const msg = document.getElementById('f-message');
     const prior = msg && msg.value && !/^Board design:/.test(msg.value) ? '\n\n' + msg.value : '';
     if (msg) msg.value = parts.join('\n') + prior;
@@ -384,6 +386,26 @@ export function init(root) {
     const url = designUrl();
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => toast('Link copied. Anyone who opens it sees your design.'), () => toast(url));
     else toast(url);
+  }
+
+  /* cutting file for Easel and other CNC software: the design as an SVG in millimetres */
+  let glyphsP = null;
+  async function downloadEasel() {
+    try {
+      if (!glyphsP) glyphsP = fetch('/js/designer/glyphs.json?v=1').then((r) => { if (!r.ok) throw new Error('glyphs'); return r.json(); });
+      await Promise.all([ensureFont(state.font), ensureFont('clean')]);
+      const fonts = await glyphsP;
+      const shape = SHAPES[state.shape], bb = shape.bbox, k = TEXW / bb.w;
+      const X = (x) => (x - bb.x0) * k, Y = (y) => (bb.y1 - y) * k;
+      const ctx = document.createElement('canvas').getContext('2d');
+      const lay = layoutText(ctx, state, shape, k, X, Y, [state.a || '', state.b || '']);
+      const svg = buildEasel(state, shape, lay, k, fonts);
+      const name = 'fat-hamster-' + state.shape + '-' + ((state.a || 'design').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'design') + '.svg';
+      const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+      const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      toast('SVG downloaded. Drag it into Easel.');
+    } catch (err) { glyphsP = null; if (window.console) console.error(err); toast('Could not make the file here. Try again.'); }
   }
 
   function activeImage() {
@@ -444,7 +466,7 @@ export function init(root) {
     const a = b.dataset.act;
     if (a === 'undo') undo(); else if (a === 'redo') redo(); else if (a === 'surprise') surprise(); else if (a === 'reset') reset();
     else if (a === 'next') goStep(step + 1); else if (a === 'back') goStep(step - 1);
-    else if (a === 'send') sendToPhil(); else if (a === 'save') savePicture(); else if (a === 'copy') copyLink();
+    else if (a === 'send') sendToPhil(); else if (a === 'save') savePicture(); else if (a === 'copy') copyLink(); else if (a === 'easel') downloadEasel();
   });
   $$('.bd-steps [role="tab"]').forEach((t, i) => {
     t.addEventListener('click', () => goStep(i));

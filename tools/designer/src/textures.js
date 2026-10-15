@@ -143,6 +143,12 @@ function resinBand(shape, k, X, Y, seed) {
   return { path, top, bot, x0: X(x0), x1: X(x1) };
 }
 
+/* the resin river as a plain polygon in board units (for the cutting file) */
+export function resinPolygon(shape) {
+  const band = resinBand(shape, 1, (x) => x, (y) => y, 1.3 + shape.bbox.w * 0.001);
+  return band.top.concat(band.bot.slice().reverse());
+}
+
 /* ---- text layout ---- */
 function measure(ctx, text, fontId, px, spacing) {
   ctx.font = fontSpec(fontId, px);
@@ -172,7 +178,7 @@ export function boxFits(shape, state, k, box) {
   return true;
 }
 
-function layoutText(ctx, state, shape, k, X, Y, lines) {
+export function layoutText(ctx, state, shape, k, X, Y, lines) {
   // shrink in small steps until the whole block (words and icon) sits on the board
   let out = null;
   for (let shrink = 1; shrink > 0.2; shrink *= 0.94) {
@@ -310,7 +316,7 @@ export function compose(L, state, shape, grain, shown) {
   }
   lay.lines.forEach((l) => stamp(L, state.finish, k, (ctx) => drawLine(ctx, l)));
 
-  return { textBox: lay.box, k };
+  return { textBox: lay.box, k, lay };
 }
 
 /* a small wood swatch for the timber picker */

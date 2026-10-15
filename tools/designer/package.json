@@ -4,12 +4,14 @@
   "type": "module",
   "description": "Build tooling for the board designer (bundles js/designer/*). Run: npm install && npm run build",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "glyphs": "node glyphs.mjs"
   },
   "dependencies": {
     "three": "^0.170.0"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.0",
+    "fontkit": "^2.0.4"
   }
 }
