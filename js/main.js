@@ -97,7 +97,7 @@
   function show(i) {
     current = (i + list.length) % list.length;
     var img = list[current].querySelector('img');
-    boxImg.src = img.getAttribute('src');
+    boxImg.src = img.getAttribute('data-full') || img.getAttribute('src');
     boxImg.alt = img.alt;
     boxCap.textContent = img.alt;
   }
