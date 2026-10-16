@@ -207,7 +207,7 @@
     var startDesigner = function () {
       if (designerStarted) return; designerStarted = true;
       var load = new Function('u', 'return import(u)');   // keeps very old browsers from choking on the syntax
-      load('/js/designer/designer.js?v=11').then(function (m) { m.init(dapp); }).catch(function () {
+      load('/js/designer/designer.js?v=12').then(function (m) { m.init(dapp); }).catch(function () {
         dapp.insertAdjacentHTML('beforeend', '<p class="bd-nojs">The board designer could not load here. You can still tell Phil what you would like in the <a href="#contact">enquiry form</a>.</p>');
       });
     };
@@ -232,9 +232,20 @@
   }
 
   /* "Enquire about this" links pre-select the product in the form */
-  var interest = document.getElementById('f-interest');
+  var GROUPS = {
+    'Coffee table': 'Furniture', 'Side or small table': 'Furniture',
+    'Wall art': 'Wall art & shelves', 'Shelf or storage': 'Wall art & shelves', "Bull's head bottle opener": 'Wall art & shelves',
+    'Cheeseboard or serving board': 'Boards & gifts', 'Gift or keepsake': 'Boards & gifts',
+    'Garden piece': 'Garden', 'Business or venue': 'Something else', 'Something else': 'Something else'
+  };
   document.querySelectorAll('[data-interest]').forEach(function (a) {
-    a.addEventListener('click', function () { interest.value = a.getAttribute('data-interest'); });
+    a.addEventListener('click', function () {
+      var item = a.getAttribute('data-interest'), group = GROUPS[item] || 'Something else';
+      var radios = document.querySelectorAll('#enquiry input[name="interest"]');
+      Array.prototype.forEach.call(radios, function (r) { r.checked = r.value === group; });
+      var p = document.querySelector('#enquiry input[name="product"]');
+      if (p) p.value = item === group ? '' : item;
+    });
   });
 
 
@@ -264,13 +275,13 @@
         load().then(function (t) {
           if (!t) return;
           st.id = t.render(slot, { sitekey: key, appearance: 'interaction-only', callback: done, 'expired-callback': function () { st.token = ''; }, 'error-callback': function () { st.token = ''; } });
-        }).catch(function () { st.id = null; });
+        }).catch(function () { st.id = null; done(''); });
       };
       st.get = function () {
         if (!key) return Promise.resolve('');
         st.start();
         if (st.token) return Promise.resolve(st.token);
-        return new Promise(function (res) { st.waiters.push(res); setTimeout(function () { res(''); }, 12000); });
+        return new Promise(function (res) { st.waiters.push(res); setTimeout(function () { res(''); }, 8000); });
       };
       st.reset = function () { st.token = ''; if (window.turnstile && st.id !== null && st.id !== -1) { try { window.turnstile.reset(st.id); } catch (e) { /* ignore */ } } };
       return st;
@@ -312,7 +323,7 @@
     var details = {
       name: name.value.trim(),
       email: email.value.trim(),
-      interest: form.elements.interest.value,
+      interest: form.elements.interest.value + (form.elements.product.value ? ' (' + form.elements.product.value + ')' : ''),
       message: form.elements.message.value.trim(),
       _subject: 'Website enquiry: ' + form.elements.interest.value
     };

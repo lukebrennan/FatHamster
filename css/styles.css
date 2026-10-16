@@ -838,3 +838,15 @@ p, li { text-wrap: pretty; }
 .ts-slot { margin: 0 0 .6rem; }
 .ts-slot:empty { display: none; }
 .bd-send-form .ts-slot { margin: 0 0 .5rem; display: flex; justify-content: center; }
+
+/* contact form: one-tap choices instead of a long dropdown */
+.pills-field { border: 0; padding: 0; margin: 0 0 1.1rem; min-width: 0; }
+.pills-field legend { padding: 0; font-weight: 600; font-size: .9rem; margin-bottom: .45rem; color: var(--walnut); }
+.pills { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pills label { position: relative; cursor: pointer; }
+.pills input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.pills span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 1rem; border: 2px solid var(--cream-deep); border-radius: 999px; background: #fffdf7; font-weight: 600; font-size: .92rem; color: var(--walnut); transition: background .2s, color .2s, border-color .2s, transform .12s; }
+.pills label:hover span { border-color: #cdbb97; }
+.pills label:active span { transform: scale(.97); }
+.pills input:checked + span { background: var(--walnut); border-color: var(--walnut); color: var(--cream); }
+.pills input:focus-visible + span { outline: 3px solid var(--oak); outline-offset: 2px; }
