@@ -834,3 +834,7 @@ p, li { text-wrap: pretty; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
   .js .reveal { opacity: 1; transform: none; }
 }
+
+.ts-slot { margin: 0 0 .6rem; }
+.ts-slot:empty { display: none; }
+.bd-send-form .ts-slot { margin: 0 0 .5rem; display: flex; justify-content: center; }

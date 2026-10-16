@@ -8,6 +8,8 @@
      TO               (text)    where Phil's enquiries go, e.g. phil@example.com
      FROM             (text)    e.g. The Fat Hamster Wood Shop <enquiries@send.fathamster.co.uk>
      ALLOWED_ORIGINS  (text)    https://fathamster.co.uk,https://www.fathamster.co.uk
+     TURNSTILE_SECRET (secret)  optional: the Turnstile secret key. When set, every submission
+                                must pass Cloudflare's bot check.
 */
 
 const MAX_BODY = 6 * 1024 * 1024;        // a picture and an SVG fit easily
@@ -191,6 +193,15 @@ export default {
     const name = clean(d.name, 120), email = clean(d.email, 200), interest = clean(d.interest, 120) || 'Something else', message = clean(d.message, 4000);
     if (!name || !/^\S+@\S+\.\S+$/.test(email)) return reply(400, { error: 'Name and a valid email are needed' }, cors.h);
     if (!env.RESEND_API_KEY || !env.TO || !env.FROM) return reply(500, { error: 'Mailer is not set up' }, cors.h);
+    if (env.TURNSTILE_SECRET) {
+      const token = clean(d.turnstileToken, 2048);
+      if (!token) return reply(400, { error: 'Please complete the check' }, cors.h);
+      const form = new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token });
+      const ip = req.headers.get('CF-Connecting-IP'); if (ip) form.set('remoteip', ip);
+      let ok = false;
+      try { const v = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form }); ok = !!(await v.json()).success; } catch (e) { ok = false; }
+      if (!ok) return reply(403, { error: 'The check did not pass' }, cors.h);
+    }
     if (await overLimit(req)) return reply(429, { error: 'Too many messages, please try again later' }, cors.h);
 
     const design = d.design && typeof d.design === 'object' ? d.design : null;

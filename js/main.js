@@ -207,7 +207,7 @@
     var startDesigner = function () {
       if (designerStarted) return; designerStarted = true;
       var load = new Function('u', 'return import(u)');   // keeps very old browsers from choking on the syntax
-      load('/js/designer/designer.js?v=10').then(function (m) { m.init(dapp); }).catch(function () {
+      load('/js/designer/designer.js?v=11').then(function (m) { m.init(dapp); }).catch(function () {
         dapp.insertAdjacentHTML('beforeend', '<p class="bd-nojs">The board designer could not load here. You can still tell Phil what you would like in the <a href="#contact">enquiry form</a>.</p>');
       });
     };
@@ -237,10 +237,54 @@
     a.addEventListener('click', function () { interest.value = a.getAttribute('data-interest'); });
   });
 
+
+  /* Cloudflare Turnstile: a free, mostly invisible check that keeps bots off the enquiry forms.
+     Only active once a site key is set in data-turnstile on the enquiry form. */
+  var FH_TS = (function () {
+    var f = document.getElementById('enquiry');
+    var key = (f && f.getAttribute('data-turnstile')) || '';
+    var loading = null;
+    function load() {
+      if (!key) return Promise.resolve(null);
+      if (window.turnstile) return Promise.resolve(window.turnstile);
+      if (!loading) loading = new Promise(function (res, rej) {
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true;
+        s.onload = function () { res(window.turnstile); }; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      return loading;
+    }
+    function attach(slot) {
+      var st = { id: null, token: '', waiters: [] };
+      function done(tok) { st.token = tok; st.waiters.splice(0).forEach(function (w) { w(tok); }); }
+      st.start = function () {
+        if (!key || !slot || st.id !== null) return;
+        st.id = -1;
+        load().then(function (t) {
+          if (!t) return;
+          st.id = t.render(slot, { sitekey: key, appearance: 'interaction-only', callback: done, 'expired-callback': function () { st.token = ''; }, 'error-callback': function () { st.token = ''; } });
+        }).catch(function () { st.id = null; });
+      };
+      st.get = function () {
+        if (!key) return Promise.resolve('');
+        st.start();
+        if (st.token) return Promise.resolve(st.token);
+        return new Promise(function (res) { st.waiters.push(res); setTimeout(function () { res(''); }, 12000); });
+      };
+      st.reset = function () { st.token = ''; if (window.turnstile && st.id !== null && st.id !== -1) { try { window.turnstile.reset(st.id); } catch (e) { /* ignore */ } } };
+      return st;
+    }
+    return { key: key, attach: attach };
+  })();
+  window.FH_TS = FH_TS;
+
   /* Enquiry form: opens the visitor's email app with the details filled in.
      To receive enquiries without an email app, point this at a form service. */
   var form = document.getElementById('enquiry');
   var note = document.getElementById('form-note');
+  var tsForm = FH_TS.attach(form.querySelector('.ts-slot'));
+  form.addEventListener('focusin', function () { tsForm.start(); });
   var TO = 'hello@fathamster.co.uk';
   if (form.getAttribute('data-endpoint')) note.textContent = 'Phil will reply to you by email.';
 
@@ -285,8 +329,12 @@
 
     var btn = form.querySelector('button[type=submit]');
     btn.disabled = true; btn.textContent = 'Sending...';
-    fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(details) })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); })
+    tsForm.get()
+      .then(function (tok) {
+        if (tok) details.turnstileToken = tok;
+        return fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(details) });
+      })
+      .then(function (r) { tsForm.reset(); if (!r.ok) throw new Error(r.status); })
       .then(function () {
         form.innerHTML = '<div class="thanks" role="status"><h3>Thank you, ' + details.name.replace(/[<>&"]/g, '') + '</h3><p>Your enquiry has been sent. Phil will be in touch by email soon.</p></div>';
       })

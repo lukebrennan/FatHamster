@@ -37,7 +37,18 @@ In `index.html` find `data-endpoint=""` on the enquiry form and put the Worker a
 between the quotes. Commit and push. The form note then reads "Phil will reply to you by
 email" and the form no longer opens the visitor's email app.
 
-## 5. Test
+## 5. Bot check (Cloudflare Turnstile, free)
+This stops bots using the forms to send emails. It is invisible to almost everyone.
+1. dash.cloudflare.com > Turnstile > Add widget. Name it `fathamster`. Hostnames: add
+   `fathamster.co.uk` and `www.fathamster.co.uk`. Widget mode: Managed. Create.
+2. Copy the **Site key** (public) and the **Secret key** (private).
+3. In `index.html` put the Site key between the quotes of `data-turnstile=""` on the
+   enquiry form. Commit and push (or send it to Claude to do).
+4. In the worker's Variables and Secrets add `TURNSTILE_SECRET`, type **Secret**, with the
+   Secret key. Deploy.
+Do step 3 before step 4. Until the secret is added the check is simply skipped.
+
+## 6. Test
 Send an enquiry from the live site, then check Phil's inbox (and spam the first time).
 Pressing Reply in that email answers the customer, not the website.
 

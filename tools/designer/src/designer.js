@@ -130,6 +130,7 @@ function template() {
           '</div>' +
           '<div class="field bd-note-field"><label for="bd-note">Anything to add? (optional)</label><textarea id="bd-note" name="note" rows="2" maxlength="600"></textarea></div>' +
           '<div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>' +
+          '<div class="ts-slot"></div>' +
           '<button type="submit" class="btn bd-send">Send this design to Phil</button>' +
           '<p class="bd-formnote" role="status"></p>' +
         '</form>' +
@@ -389,6 +390,9 @@ export function init(root) {
 
   /* the Send step: emails Phil the picture, the details and the cutting file */
   const MAILTO = 'hello@fathamster.co.uk';
+  const ts = window.FH_TS ? window.FH_TS.attach(root.querySelector('.bd-send-form .ts-slot')) : null;
+  const sendForm = root.querySelector('.bd-send-form');
+  if (sendForm && ts) sendForm.addEventListener('focusin', () => ts.start());
   async function submitDesign(e) {
     e.preventDefault();
     const form = e.target, note = $('.bd-formnote');
@@ -412,8 +416,9 @@ export function init(root) {
     };
     if (!endpoint || !window.fetch) { fallback(); return; }
     try {
-      const design = await exportDesign();
-      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Cheeseboard or serving board', message: extra, _gotcha: '', design }) });
+      const [design, turnstileToken] = await Promise.all([exportDesign(), ts ? ts.get() : Promise.resolve('')]);
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Cheeseboard or serving board', message: extra, _gotcha: '', design, turnstileToken }) });
+      if (ts) ts.reset();
       if (!r.ok) throw new Error(r.status);
       $('.bd-thanks').innerHTML = '<h3>Thank you, ' + esc(name) + '</h3><p>Phil has your design and will email you at ' + esc(email) + ' soon.</p><button type="button" class="bd-link" data-act="reset">Design another board</button>';
       $('#bd-pane-4').classList.add('is-sent');
