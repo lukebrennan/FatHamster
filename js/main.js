@@ -207,7 +207,7 @@
     var startDesigner = function () {
       if (designerStarted) return; designerStarted = true;
       var load = new Function('u', 'return import(u)');   // keeps very old browsers from choking on the syntax
-      load('/js/designer/designer.js?v=13').then(function (m) { m.init(dapp); }).catch(function () {
+      load('/js/designer/designer.js?v=14').then(function (m) { m.init(dapp); }).catch(function () {
         dapp.insertAdjacentHTML('beforeend', '<p class="bd-nojs">The board designer could not load here. You can still tell Phil what you would like in the <a href="#contact">enquiry form</a>.</p>');
       });
     };

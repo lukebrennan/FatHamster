@@ -303,7 +303,7 @@ export function init(root) {
     refreshText();
     if (now) doIt(); else histTimer = setTimeout(doIt, 500);
   }
-  function changed(now) { $('#bd-pane-4').classList.remove('is-sent'); refreshText(); schedule(); commit(now); }
+  function changed(now) { $('#bd-pane-4').classList.remove('is-sent'); $('.bd-panel').classList.remove('is-sent'); refreshText(); schedule(); commit(now); }
 
   /* ---------- steps ---------- */
   const labels = ['Shape', 'Timber', 'Words', 'Extras', 'Send'];
@@ -379,7 +379,7 @@ export function init(root) {
     if (view3d && ready3d) view3d.pop();
   }
   function reset() {
-    $('#bd-pane-4').classList.remove('is-sent');
+    $('#bd-pane-4').classList.remove('is-sent'); $('.bd-panel').classList.remove('is-sent');
     state = clone(DEFAULT); syncUI(); changed(true);
     if (view3d && ready3d) view3d.resetView();
     toast('Started again');
@@ -420,8 +420,8 @@ export function init(root) {
       const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Boards (designed on the site)', message: extra, _gotcha: '', design, turnstileToken }) });
       if (ts) ts.reset();
       if (!r.ok) throw new Error(r.status);
-      $('.bd-thanks').innerHTML = '<h3>Thank you, ' + esc(name) + '</h3><p>Phil has your design and will email you at ' + esc(email) + ' soon.</p><button type="button" class="bd-link" data-act="reset">Design another board</button>';
-      $('#bd-pane-4').classList.add('is-sent');
+      $('.bd-thanks').innerHTML = '<h3>Thank you, ' + esc(name) + '</h3><p>Phil has your design and will email you at ' + esc(email) + ' soon.</p>';
+      $('#bd-pane-4').classList.add('is-sent'); $('.bd-panel').classList.add('is-sent');
       btn.disabled = false; btn.textContent = 'Send this design to Phil';
     } catch (err) { if (window.console) console.error(err); btn.disabled = false; btn.textContent = 'Send this design to Phil'; fallback(); }
   }
