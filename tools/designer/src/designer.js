@@ -13,6 +13,9 @@ const PH = ['Emma & James', 'Est. 2026'];
 const MAXLEN = [26, 30];
 const SAMPLE_NAMES = [['Sam & Alex', 'Est. 2026'], ['The Browns', 'Home sweet home'], ['Cheers!', ''], ['Mum & Dad', 'Thank you'], ['Olivia', '12.06.2027'], ['The Carters', 'Established 2024']];
 
+/* Phil's version of the link also shows the cutting-file download, which customers never see */
+const philView = /[?&]phil=1/.test(location.search);
+
 const DEFAULT = { shape: 'round', wood: 'oak', font: 'classic', finish: 'engrave', resin: 'none', border: false, icon: 'none', a: '', b: '', ta: false, tb: false, size: 1, ox: 0, oy: 0 };
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -124,7 +127,7 @@ function template() {
         '<p class="bd-q">Happy with it?</p>' +
         '<dl class="bd-recap"></dl>' +
         '<button type="button" class="btn bd-send" data-act="send">Send this design to Phil</button>' +
-        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button><button type="button" class="bd-link" data-act="copy">Copy link to my design</button><button type="button" class="bd-link" data-act="easel">Download SVG for Easel</button></div>' +
+        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button>' + (philView ? '<button type="button" class="bd-link" data-act="easel">Download SVG for Easel</button>' : '') + '</div>' +
         '<p class="bd-tip">A visual preview only. Phil confirms the timber, size and lettering with you before anything is cut.</p>' +
       '</section>' +
     '</div>' +
@@ -169,14 +172,14 @@ export function init(root) {
     if (state.border) bits.push('border');
     return bits;
   }
-  function designUrl() {
-    return location.origin + location.pathname + '?design=' + encode(state) + '#designer';
+  function designUrl(forPhil) {
+    return location.origin + location.pathname + '?design=' + encode(state) + (forPhil ? '&phil=1' : '') + '#designer';
   }
   function syncUrl() {
     clearTimeout(urlTimer);
     urlTimer = setTimeout(() => {
       try {
-        const base = location.pathname + (isDefault() ? '' : '?design=' + encode(state)) + '#designer';
+        const base = location.pathname + (isDefault() ? '' : '?design=' + encode(state) + (philView ? '&phil=1' : '')) + '#designer';
         history.replaceState(null, '', base);
       } catch (e) { /* ignore */ }
     }, 400);
@@ -384,8 +387,7 @@ export function init(root) {
     const hadWords = !!(state.a || state.b);
     const parts = ['Board design: ' + describe().join(', ') + '.'];
     parts.push('Words: ' + (hadWords ? '"' + (state.a || '') + '"' + (state.b ? ' / "' + state.b + '"' : '') : 'to be decided') + '.');
-    parts.push('See my design: ' + designUrl());
-    parts.push('(Phil: open the link and press "Download SVG for Easel" for the cutting file.)');
+    parts.push('See my design: ' + designUrl(true));
     const msg = document.getElementById('f-message');
     const prior = msg && msg.value && !/^Board design:/.test(msg.value) ? '\n\n' + msg.value : '';
     if (msg) msg.value = parts.join('\n') + prior;
@@ -393,12 +395,6 @@ export function init(root) {
     const c = document.getElementById('contact'); if (c) c.scrollIntoView({ behavior: calm ? 'auto' : 'smooth' });
     setTimeout(() => { const n = document.getElementById('f-name'); if (n) n.focus({ preventScroll: true }); }, 700);
     return lines;
-  }
-
-  function copyLink() {
-    const url = designUrl();
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => toast('Link copied. Anyone who opens it sees your design.'), () => toast(url));
-    else toast(url);
   }
 
   /* cutting file for Easel and other CNC software: the design as an SVG in millimetres */
@@ -479,7 +475,7 @@ export function init(root) {
     const a = b.dataset.act;
     if (a === 'undo') undo(); else if (a === 'redo') redo(); else if (a === 'surprise') surprise(); else if (a === 'reset') reset();
     else if (a === 'next') goStep(step + 1); else if (a === 'back') goStep(step - 1);
-    else if (a === 'send') sendToPhil(); else if (a === 'save') savePicture(); else if (a === 'copy') copyLink(); else if (a === 'easel') downloadEasel();
+    else if (a === 'send') sendToPhil(); else if (a === 'save') savePicture(); else if (a === 'easel') downloadEasel();
   });
   $$('.bd-steps [role="tab"]').forEach((t, i) => {
     t.addEventListener('click', () => goStep(i));
