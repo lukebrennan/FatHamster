@@ -207,7 +207,7 @@
     var startDesigner = function () {
       if (designerStarted) return; designerStarted = true;
       var load = new Function('u', 'return import(u)');   // keeps very old browsers from choking on the syntax
-      load('/js/designer/designer.js?v=12').then(function (m) { m.init(dapp); }).catch(function () {
+      load('/js/designer/designer.js?v=13').then(function (m) { m.init(dapp); }).catch(function () {
         dapp.insertAdjacentHTML('beforeend', '<p class="bd-nojs">The board designer could not load here. You can still tell Phil what you would like in the <a href="#contact">enquiry form</a>.</p>');
       });
     };
@@ -233,18 +233,18 @@
 
   /* "Enquire about this" links pre-select the product in the form */
   var GROUPS = {
-    'Coffee table': 'Furniture', 'Side or small table': 'Furniture',
-    'Wall art': 'Wall art & shelves', 'Shelf or storage': 'Wall art & shelves', "Bull's head bottle opener": 'Wall art & shelves',
-    'Cheeseboard or serving board': 'Boards & gifts', 'Gift or keepsake': 'Boards & gifts',
-    'Garden piece': 'Garden', 'Business or venue': 'Something else', 'Something else': 'Something else'
+    'Coffee table': 'Something for the home', 'Side or small table': 'Something for the home', 'Wall art': 'Something for the home',
+    'Shelf or storage': 'Something for the home', "Bull's head bottle opener": 'Something for the home', 'Garden piece': 'Something for the home',
+    'Cheeseboard or serving board': 'Boards', 'Gift or keepsake': 'Boards',
+    'Business or venue': 'Pubs & restaurants'
   };
   document.querySelectorAll('[data-interest]').forEach(function (a) {
     a.addEventListener('click', function () {
-      var item = a.getAttribute('data-interest'), group = GROUPS[item] || 'Something else';
+      var item = a.getAttribute('data-interest'), group = GROUPS[item] || '';
       var radios = document.querySelectorAll('#enquiry input[name="interest"]');
       Array.prototype.forEach.call(radios, function (r) { r.checked = r.value === group; });
       var p = document.querySelector('#enquiry input[name="product"]');
-      if (p) p.value = item === group ? '' : item;
+      if (p) p.value = (item === group || item === 'Something else') ? '' : item;
     });
   });
 
@@ -323,9 +323,9 @@
     var details = {
       name: name.value.trim(),
       email: email.value.trim(),
-      interest: form.elements.interest.value + (form.elements.product.value ? ' (' + form.elements.product.value + ')' : ''),
+      interest: (form.elements.interest.value || 'General enquiry') + (form.elements.product.value ? ' (' + form.elements.product.value + ')' : ''),
       message: form.elements.message.value.trim(),
-      _subject: 'Website enquiry: ' + form.elements.interest.value
+      _subject: 'Website enquiry: ' + (form.elements.interest.value || 'General enquiry')
     };
     if (form.elements._gotcha && form.elements._gotcha.value) return; /* bot */
 

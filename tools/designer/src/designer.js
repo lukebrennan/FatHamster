@@ -417,7 +417,7 @@ export function init(root) {
     if (!endpoint || !window.fetch) { fallback(); return; }
     try {
       const [design, turnstileToken] = await Promise.all([exportDesign(), ts ? ts.get() : Promise.resolve('')]);
-      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Boards & gifts (designed on the site)', message: extra, _gotcha: '', design, turnstileToken }) });
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Boards (designed on the site)', message: extra, _gotcha: '', design, turnstileToken }) });
       if (ts) ts.reset();
       if (!r.ok) throw new Error(r.status);
       $('.bd-thanks').innerHTML = '<h3>Thank you, ' + esc(name) + '</h3><p>Phil has your design and will email you at ' + esc(email) + ' soon.</p><button type="button" class="bd-link" data-act="reset">Design another board</button>';
