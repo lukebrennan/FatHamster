@@ -2,7 +2,9 @@
 
 Both the designer's Send step and the contact form post to a tiny Worker, which uses Resend
 to email Phil. A board design arrives with the customer's details, the board details, the
-preview picture in the email and the SVG cutting file for Easel attached. Everything here is free at this volume.
+preview picture in the email and the SVG cutting file for Easel attached. The customer
+also gets a branded confirmation email (picture, details, what happens next); replies to
+it go to Phil. Each visitor is limited to 6 submissions an hour. Everything here is free at this volume.
 
 You need two free accounts (Resend and Cloudflare) and access to the fathamster.co.uk DNS.
 
@@ -25,7 +27,7 @@ Copy the key (starts `re_`). It is only shown once.
 3. Settings > Variables and Secrets > Add:
    - `RESEND_API_KEY`  type **Secret**  the `re_...` key
    - `TO`              type Text  Phil's real inbox, e.g. phil@example.com
-   - `FROM`            type Text  `The Fat Hamster Website <enquiries@send.fathamster.co.uk>`
+   - `FROM`            type Text  `The Fat Hamster Wood Shop <enquiries@send.fathamster.co.uk>`
    - `ALLOWED_ORIGINS` type Text  `https://fathamster.co.uk,https://www.fathamster.co.uk`
    Deploy again so they apply.
 4. Copy the Worker address shown at the top (like `https://fathamster-enquiries.YOURNAME.workers.dev`).
