@@ -52,29 +52,35 @@ export default {
     const attachments = [];
     let designHtml = '', designText = '';
     if (design) {
-      const link = clean(design.url, 2000);
+      const link = clean(design.url, 4000);
       const summary = clean(design.summary, 600);
+      const rows = (Array.isArray(design.details) ? design.details : []).slice(0, 12)
+        .map((r) => [clean(r && r[0], 40), clean(r && r[1], 200)]).filter((r) => r[0]);
+      let inline = false;
+      if (typeof design.jpeg === 'string' && /^[A-Za-z0-9+/=]+$/.test(design.jpeg) && design.jpeg.length < 4000000) {
+        attachments.push({ filename: 'board-preview.jpg', content: design.jpeg, content_id: 'board', content_type: 'image/jpeg' });
+        inline = true;
+      }
       if (typeof design.svg === 'string' && design.svg.startsWith('<?xml') && design.svg.length < 600000) {
         attachments.push({ filename: clean(design.name, 80).replace(/[^\w.-]+/g, '-') || 'fat-hamster-design.svg', content: b64(design.svg) });
       }
-      if (typeof design.jpeg === 'string' && /^[A-Za-z0-9+/=]+$/.test(design.jpeg) && design.jpeg.length < 4000000) {
-        attachments.push({ filename: 'board-preview.jpg', content: design.jpeg });
-      }
-      designHtml = '<h3 style="margin:24px 0 6px">Board design</h3>' +
-        (summary ? '<p style="margin:0 0 8px">' + esc(summary) + '</p>' : '') +
-        (link ? '<p style="margin:0 0 8px"><a href="' + esc(link) + '">Open the design</a></p>' : '') +
-        (attachments.length ? '<p style="margin:0;color:#666">Attached: ' + attachments.map((a) => esc(a.filename)).join(', ') + '. Drag the SVG into Easel.</p>' : '');
-      designText = '\n\nBoard design: ' + summary + (link ? '\nOpen the design: ' + link : '') + (attachments.length ? '\nAttached: ' + attachments.map((a) => a.filename).join(', ') : '');
+      designHtml = '<h3 style="margin:24px 0 8px">Board design</h3>' +
+        (inline ? '<p style="margin:0 0 12px"><img src="cid:board" alt="The board design" width="560" style="max-width:100%;height:auto;border-radius:8px"></p>' : '') +
+        (rows.length ? '<table style="border-collapse:collapse;font-size:15px">' + rows.map((r) => '<tr><td style="padding:3px 16px 3px 0;color:#666">' + esc(r[0]) + '</td><td style="padding:3px 0"><strong>' + esc(r[1]) + '</strong></td></tr>').join('') + '</table>'
+          : (summary ? '<p style="margin:0">' + esc(summary) + '</p>' : '')) +
+        (link ? '<p style="margin:12px 0 0"><a href="' + esc(link) + '">Open this design in the designer</a></p>' : '') +
+        (attachments.some((a) => /\.svg$/.test(a.filename)) ? '<p style="margin:8px 0 0;color:#666">The SVG is attached. Drag it into Easel.</p>' : '');
+      designText = '\n\nBoard design:\n' + (rows.length ? rows.map((r) => r[0] + ': ' + r[1]).join('\n') : summary) + (link ? '\nOpen it: ' + link : '') + (attachments.length ? '\nAttached: ' + attachments.map((a) => a.filename).join(', ') : '');
     }
 
-    const subject = (design ? 'Board design enquiry: ' : 'Website enquiry: ') + (interest || 'Something else') + ' (' + name + ')';
+    const subject = (design ? 'Board design enquiry: ' : 'Website enquiry: ') + (design && design.summary ? clean(design.summary, 70) : (interest || 'Something else')) + ' (' + name + ')';
     const html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#222">' +
       '<p style="margin:0 0 4px"><strong>' + esc(name) + '</strong> &lt;' + esc(email) + '&gt;</p>' +
       '<p style="margin:0 0 16px;color:#666">Interested in: ' + esc(interest || 'Something else') + '</p>' +
-      '<div style="white-space:pre-wrap;border-left:3px solid #c9a56a;padding-left:12px">' + esc(message) + '</div>' +
+      (message ? '<div style="white-space:pre-wrap;border-left:3px solid #c9a56a;padding-left:12px">' + esc(message) + '</div>' : '') +
       designHtml +
       '<p style="margin:24px 0 0;color:#888;font-size:13px">Hit reply to answer ' + esc(name) + ' directly.</p></div>';
-    const text = name + ' <' + email + '>\nInterested in: ' + (interest || 'Something else') + '\n\n' + message + designText;
+    const text = name + ' <' + email + '>\nInterested in: ' + (interest || 'Something else') + (message ? '\n\n' + message : '') + designText;
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

@@ -13,9 +13,6 @@ const PH = ['Emma & James', 'Est. 2026'];
 const MAXLEN = [26, 30];
 const SAMPLE_NAMES = [['Sam & Alex', 'Est. 2026'], ['The Browns', 'Home sweet home'], ['Cheers!', ''], ['Mum & Dad', 'Thank you'], ['Olivia', '12.06.2027'], ['The Carters', 'Established 2024']];
 
-/* Phil's version of the link also shows the cutting-file download, which customers never see */
-const philView = /[?&]phil=1/.test(location.search);
-
 const DEFAULT = { shape: 'round', wood: 'oak', font: 'classic', finish: 'engrave', resin: 'none', border: false, icon: 'none', a: '', b: '', ta: false, tb: false, size: 1, ox: 0, oy: 0 };
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -124,10 +121,20 @@ function template() {
         '<label class="bd-switch"><input type="checkbox" id="bd-border"><span class="bd-track" aria-hidden="true"></span><span>Engraved border</span></label>' +
       '</section>' +
       '<section class="bd-pane" role="tabpanel" id="bd-pane-4" aria-labelledby="bd-tab-4">' +
-        '<p class="bd-q">Happy with it?</p>' +
+        '<p class="bd-q">Happy with it? Send it to Phil.</p>' +
         '<dl class="bd-recap"></dl>' +
-        '<button type="button" class="btn bd-send" data-act="send">Send this design to Phil</button>' +
-        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button>' + (philView ? '<button type="button" class="bd-link" data-act="easel">Download SVG for Easel</button>' : '') + '</div>' +
+        '<form class="bd-send-form" novalidate>' +
+          '<div class="bd-fields">' +
+            '<div class="field"><label for="bd-name">Your name</label><input id="bd-name" name="name" type="text" autocomplete="name" enterkeyhint="next" required></div>' +
+            '<div class="field"><label for="bd-email">Your email</label><input id="bd-email" name="email" type="email" autocomplete="email" inputmode="email" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false" required></div>' +
+          '</div>' +
+          '<div class="field bd-note-field"><label for="bd-note">Anything to add? (optional)</label><textarea id="bd-note" name="note" rows="2" maxlength="600"></textarea></div>' +
+          '<div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>' +
+          '<button type="submit" class="btn bd-send">Send this design to Phil</button>' +
+          '<p class="bd-formnote" role="status"></p>' +
+        '</form>' +
+        '<div class="bd-thanks" role="status"></div>' +
+        '<div class="bd-more"><button type="button" class="bd-link" data-act="save">Save a picture</button></div>' +
         '<p class="bd-tip">A visual preview only. Phil confirms the timber, size and lettering with you before anything is cut.</p>' +
       '</section>' +
     '</div>' +
@@ -172,18 +179,10 @@ export function init(root) {
     if (state.border) bits.push('border');
     return bits;
   }
-  function designUrl(forPhil) {
-    return location.origin + location.pathname + '?design=' + encode(state) + (forPhil ? '&phil=1' : '') + '#designer';
+  function designUrl() {
+    return location.origin + location.pathname + '?design=' + encode(state) + '#designer';
   }
-  function syncUrl() {
-    clearTimeout(urlTimer);
-    urlTimer = setTimeout(() => {
-      try {
-        const base = location.pathname + (isDefault() ? '' : '?design=' + encode(state) + (philView ? '&phil=1' : '')) + '#designer';
-        history.replaceState(null, '', base);
-      } catch (e) { /* ignore */ }
-    }, 400);
-  }
+  function syncUrl() { /* the address bar stays tidy while you edit */ }
 
   /* ---------- rendering pipeline ---------- */
   let layers = null, lastBox = null, composing = false, pending = false, scheduled = 0;
@@ -269,17 +268,22 @@ export function init(root) {
     $('#bd-border').checked = state.border;
     refreshText();
   }
+  function recapRows() {
+    const w = [state.a, state.b].filter(Boolean);
+    return [
+      ['Shape', SHAPES[state.shape].name],
+      ['Timber', WOODS[state.wood].name],
+      ['Words', w.length ? w.join(' / ') : 'None yet'],
+      ['Lettering', FONTS[state.font].name + ', ' + (state.finish === 'burn' ? 'burnt' : 'engraved')],
+      ['Extras', [state.resin !== 'none' ? RESINS[state.resin].name + ' resin' : '', state.icon !== 'none' ? ICONS[state.icon].name + ' icon' : '', state.border ? 'Border' : ''].filter(Boolean).join(', ') || 'None']
+    ];
+  }
   function refreshText() {
     const bits = describe();
     summary.textContent = bits.join(' · ');
     const lines = shownLines();
     host.setAttribute('aria-label', 'Preview: ' + bits.join(', ') + (lines[0] ? '. Engraved with ' + lines[0] + (lines[1] ? ', ' + lines[1] : '') : ''));
-    const recap = $('.bd-recap');
-    const row = (k, v) => '<div><dt>' + k + '</dt><dd>' + esc(v) + '</dd></div>';
-    recap.innerHTML = row('Shape', SHAPES[state.shape].name) + row('Timber', WOODS[state.wood].name) +
-      row('Words', (lines[0] || 'None yet') + (lines[1] ? ' / ' + lines[1] : '')) +
-      row('Finish', FONTS[state.font].name + ', ' + (state.finish === 'burn' ? 'burnt' : 'engraved')) +
-      row('Extras', [state.resin !== 'none' ? RESINS[state.resin].name + ' resin' : '', state.icon !== 'none' ? ICONS[state.icon].name : '', state.border ? 'Border' : ''].filter(Boolean).join(', ') || 'None');
+    $('.bd-recap').innerHTML = recapRows().map((r) => '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>').join('');
     $('[data-act="undo"]').disabled = hist.i === 0;
     $('[data-act="redo"]').disabled = hist.i >= hist.stack.length - 1;
   }
@@ -298,7 +302,7 @@ export function init(root) {
     refreshText();
     if (now) doIt(); else histTimer = setTimeout(doIt, 500);
   }
-  function changed(now) { refreshText(); schedule(); commit(now); }
+  function changed(now) { $('#bd-pane-4').classList.remove('is-sent'); refreshText(); schedule(); commit(now); }
 
   /* ---------- steps ---------- */
   const labels = ['Shape', 'Timber', 'Words', 'Extras', 'Send'];
@@ -374,6 +378,7 @@ export function init(root) {
     if (view3d && ready3d) view3d.pop();
   }
   function reset() {
+    $('#bd-pane-4').classList.remove('is-sent');
     state = clone(DEFAULT); syncUI(); changed(true);
     if (view3d && ready3d) view3d.resetView();
     toast('Started again');
@@ -382,19 +387,38 @@ export function init(root) {
   function undo() { if (hist.i > 0) { hist.i--; applySnapshot(hist.stack[hist.i]); } }
   function redo() { if (hist.i < hist.stack.length - 1) { hist.i++; applySnapshot(hist.stack[hist.i]); } }
 
-  function sendToPhil() {
-    const lines = shownLines();
-    const hadWords = !!(state.a || state.b);
-    const parts = ['Board design: ' + describe().join(', ') + '.'];
-    parts.push('Words: ' + (hadWords ? '"' + (state.a || '') + '"' + (state.b ? ' / "' + state.b + '"' : '') : 'to be decided') + '.');
-    parts.push('See my design: ' + designUrl(true));
-    const msg = document.getElementById('f-message');
-    const prior = msg && msg.value && !/^Board design:/.test(msg.value) ? '\n\n' + msg.value : '';
-    if (msg) msg.value = parts.join('\n') + prior;
-    const sel = document.getElementById('f-interest'); if (sel) sel.value = 'Cheeseboard or serving board';
-    const c = document.getElementById('contact'); if (c) c.scrollIntoView({ behavior: calm ? 'auto' : 'smooth' });
-    setTimeout(() => { const n = document.getElementById('f-name'); if (n) n.focus({ preventScroll: true }); }, 700);
-    return lines;
+  /* the Send step: emails Phil the picture, the details and the cutting file */
+  const MAILTO = 'hello@fathamster.co.uk';
+  async function submitDesign(e) {
+    e.preventDefault();
+    const form = e.target, note = $('.bd-formnote');
+    const name = form.elements.name.value.trim(), email = form.elements.email.value.trim();
+    const bad = [];
+    form.elements.name.setAttribute('aria-invalid', String(!name)); if (!name) bad.push(form.elements.name);
+    const badMail = !/^\S+@\S+\.\S+$/.test(email);
+    form.elements.email.setAttribute('aria-invalid', String(badMail)); if (badMail) bad.push(form.elements.email);
+    if (bad.length) { note.textContent = !name ? 'Please add your name so Phil knows who to reply to.' : 'Please check your email address so Phil can reply.'; bad[0].focus(); return; }
+    if (form.elements._gotcha.value) return;
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Sending...'; note.textContent = '';
+    const extra = form.elements.note.value.trim();
+    const enq = document.getElementById('enquiry');
+    const endpoint = enq && enq.getAttribute('data-endpoint');
+    const fallback = () => {
+      const body = 'Name: ' + name + '\nEmail: ' + email + '\n\nBoard design: ' + describe().join(', ') + '\nWords: ' + ([state.a, state.b].filter(Boolean).join(' / ') || 'to be decided') + '\nSee the design: ' + designUrl() + (extra ? '\n\n' + extra : '');
+      note.textContent = 'Opening your email app. If nothing happens, email ' + MAILTO + ' directly.';
+      window.location.href = 'mailto:' + MAILTO + '?subject=' + encodeURIComponent('Board design enquiry') + '&body=' + encodeURIComponent(body);
+      btn.disabled = false; btn.textContent = 'Send this design to Phil';
+    };
+    if (!endpoint || !window.fetch) { fallback(); return; }
+    try {
+      const design = await exportDesign();
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ name, email, interest: 'Cheeseboard or serving board', message: extra, _gotcha: '', design }) });
+      if (!r.ok) throw new Error(r.status);
+      $('.bd-thanks').innerHTML = '<h3>Thank you, ' + esc(name) + '</h3><p>Phil has your design and will email you at ' + esc(email) + ' soon.</p><button type="button" class="bd-link" data-act="reset">Design another board</button>';
+      $('#bd-pane-4').classList.add('is-sent');
+      btn.disabled = false; btn.textContent = 'Send this design to Phil';
+    } catch (err) { if (window.console) console.error(err); btn.disabled = false; btn.textContent = 'Send this design to Phil'; fallback(); }
   }
 
   /* cutting file for Easel and other CNC software: the design as an SVG in millimetres */
@@ -410,19 +434,9 @@ export function init(root) {
     const name = 'fat-hamster-' + state.shape + '-' + ((state.a || 'design').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'design') + '.svg';
     return { svg: buildEasel(state, shape, lay, k, fonts), name };
   }
-  async function downloadEasel() {
-    try {
-      const { svg, name } = await easelSvg();
-      const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-      const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      toast('SVG downloaded. Drag it into Easel.');
-    } catch (err) { glyphsP = null; if (window.console) console.error(err); toast('Could not make the file here. Try again.'); }
-  }
-
   /* everything Phil needs, for the enquiry email: link, summary, picture and cutting file */
   async function exportDesign() {
-    const out = { url: designUrl(true), summary: describe().join(', ') };
+    const out = { url: designUrl(), summary: describe().join(', '), details: recapRows() };
     try { const s = await easelSvg(); out.svg = s.svg; out.name = s.name; } catch (e) { glyphsP = null; }
     try { const cv = await pictureCanvas(); out.jpeg = cv.toDataURL('image/jpeg', 0.85).split(',')[1]; } catch (e) { /* the link is enough */ }
     return out;
@@ -465,6 +479,7 @@ export function init(root) {
   }
 
   /* ---------- events ---------- */
+  root.addEventListener('submit', (e) => { if (e.target.classList.contains('bd-send-form')) submitDesign(e); });
   root.addEventListener('change', (e) => {
     const t = e.target;
     if (t.type === 'radio' || t.type === 'checkbox') buzz();
@@ -491,7 +506,7 @@ export function init(root) {
     const a = b.dataset.act;
     if (a === 'undo') undo(); else if (a === 'redo') redo(); else if (a === 'surprise') surprise(); else if (a === 'reset') reset();
     else if (a === 'next') goStep(step + 1); else if (a === 'back') goStep(step - 1);
-    else if (a === 'send') sendToPhil(); else if (a === 'save') savePicture(); else if (a === 'easel') downloadEasel();
+    else if (a === 'save') savePicture();
   });
   $$('.bd-steps [role="tab"]').forEach((t, i) => {
     t.addEventListener('click', () => goStep(i));

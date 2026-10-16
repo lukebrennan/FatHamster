@@ -1,8 +1,8 @@
 # Emailing Phil the enquiries (Resend + Cloudflare Worker)
 
-The enquiry form posts to a tiny Worker, which uses Resend to email Phil. When the visitor
-made a board in the designer, the email carries the design link, a preview picture and the
-SVG cutting file for Easel as attachments. Everything here is free at this volume.
+Both the designer's Send step and the contact form post to a tiny Worker, which uses Resend
+to email Phil. A board design arrives with the customer's details, the board details, the
+preview picture in the email and the SVG cutting file for Easel attached. Everything here is free at this volume.
 
 You need two free accounts (Resend and Cloudflare) and access to the fathamster.co.uk DNS.
 

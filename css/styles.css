@@ -446,6 +446,26 @@ p.bd-q { float: none; }
   .bd-tiles:not(.bd-tiles-s) .bd-swatch { height: 58px; }
   .bd-tiles:not(.bd-tiles-s) .bd-tile-in b { font-size: .86rem; }
 }
+
+/* the Send step form */
+.bd-send-form { margin-top: .2rem; }
+.bd-send-form .field { margin-bottom: .7rem; min-width: 0; }
+.bd-send-form .bd-fields { margin-bottom: .1rem; }
+.bd-send-form .field label { font-size: .85rem; margin-bottom: .3rem; }
+.bd-send-form input[type="text"], .bd-send-form input[type="email"] { width: 100%; min-width: 0; min-height: 48px; }
+.bd-send-form textarea { width: 100%; min-height: 64px; resize: vertical; }
+.bd-send-form [aria-invalid="true"] { border-color: #b3261e; }
+.bd-formnote { min-height: 1.3em; margin: .5rem 0 0; font-size: .85rem; text-align: center; color: #b3261e; }
+.bd-thanks { display: none; text-align: center; padding: 1rem .5rem; }
+.bd-thanks h3 { margin: 0 0 .4rem; font-size: 1.3rem; }
+.bd-thanks p { margin: 0 0 .6rem; color: var(--walnut-soft); }
+#bd-pane-4.is-sent .bd-thanks { display: block; }
+#bd-pane-4.is-sent > :not(.bd-thanks) { display: none; }
+@media (max-width: 900px) {
+  #bd-pane-4 .bd-recap, #bd-pane-4 > .bd-q { display: none; }
+  .bd-send-form .bd-fields { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+  .bd-send-form textarea { min-height: 48px; }
+}
 @media (prefers-reduced-motion: reduce) { .bd-pane.is-on { animation: none !important; } }
 @media (max-width: 420px) {
   .bd-tile-in b { font-size: .7rem; }
