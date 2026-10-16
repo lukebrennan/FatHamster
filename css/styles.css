@@ -356,10 +356,11 @@ p.bd-q { float: none; }
 @media (min-width: 901px) {
   .bd-wide span { display: inline; }
   .designer { scroll-margin-top: -16rem; }
-  .bd { height: clamp(560px, calc(100vh - 9rem), 740px); height: clamp(560px, calc(100svh - 9rem), 740px); grid-template-rows: minmax(0, 1fr) auto; }
-  .bd-stage { aspect-ratio: auto; height: 100%; min-height: 0; }
+  .bd { grid-template-rows: minmax(0, 1fr) auto; }
+  .bd-stage { aspect-ratio: auto; min-height: 480px; }
   .bd-panel { min-height: 0; }
-  .bd-panes { overflow-y: auto; min-height: 0; padding-right: .15rem; }
+  .bd-panes { height: var(--bd-ph, auto); overflow-y: auto; min-height: 0; scrollbar-width: none; }
+  .bd-panes::-webkit-scrollbar { display: none; }
   .bd-panes.has-more { -webkit-mask-image: linear-gradient(#000 calc(100% - 30px), transparent); mask-image: linear-gradient(#000 calc(100% - 30px), transparent); }
   .bd-tiles:not(.bd-tiles-s) .bd-tile-in { min-height: 112px; gap: .6rem; }
   .bd-tiles:not(.bd-tiles-s) .bd-sil { max-height: 52px; }
@@ -402,7 +403,7 @@ p.bd-q { float: none; }
   .bd-steps button { min-height: 48px; padding: .2rem 0; gap: .15rem; }
   .bd-steps b { width: 1.7rem; height: 1.7rem; font-size: .8rem; }
   .bd-steps span { font-size: .7rem; }
-  .bd-panes { display: block; flex: 0 0 auto; position: relative; height: var(--bd-ph, 250px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: .15rem .1rem .3rem; margin-inline: -.1rem; }
+  .bd-panes { scrollbar-width: none; display: block; flex: 0 0 auto; position: relative; height: var(--bd-ph, 250px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: .15rem .1rem .3rem; margin-inline: -.1rem; }
   .bd-pane { display: none; visibility: visible; opacity: 1; transform: none; transition: none; pointer-events: auto; }
   .bd-pane.is-on { display: block; animation: bd-slide-fwd .28s ease; }
   .bd-panes[data-dir="back"] .bd-pane.is-on { animation-name: bd-slide-back; }
@@ -443,7 +444,6 @@ p.bd-q { float: none; }
   .bd-tiles-s .bd-tile-in { min-height: 54px; }
 }
 @media (max-width: 900px) {
-  .bd-pane.is-measure { display: block !important; position: absolute; left: 0; right: 0; top: 0; visibility: hidden; animation: none; }
   /* shape and timber: two big tiles across, so the panel is full and easy to hit */
   .bd-tiles:not(.bd-tiles-s) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
   .bd-tiles:not(.bd-tiles-s) .bd-tile-in { min-height: 92px; gap: .45rem; }
@@ -468,7 +468,7 @@ p.bd-q { float: none; }
 #bd-pane-4.is-sent > :not(.bd-thanks) { display: none; }
 .bd-panel.is-sent .bd-nav { display: none; }
 @media (max-width: 900px) {
-  #bd-pane-4 .bd-recap, #bd-pane-4 > .bd-q { display: none; }
+  #bd-pane-4 > .bd-q { display: none; }
   .bd-send-form .bd-fields { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
   .bd-send-form textarea { min-height: 48px; }
 }
@@ -863,3 +863,17 @@ p, li { text-wrap: pretty; }
   #bd-pane-4 .bd-recap { margin-bottom: .6rem; }
   .bd-send-form textarea { min-height: 52px; }
 }
+
+/* shape and timber: two big tiles across, at every size */
+.bd-tiles:not(.bd-tiles-s) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 901px) {
+  .bd-tiles:not(.bd-tiles-s) .bd-tile-in { min-height: 118px; }
+  .bd-tiles:not(.bd-tiles-s) .bd-sil { max-height: 54px; }
+  .bd-tiles:not(.bd-tiles-s) .bd-swatch { height: 72px; }
+}
+
+.bd-panes { position: relative; }
+.bd-pane.is-measure { display: block !important; position: absolute; left: 0; right: 0; top: 0; height: auto; visibility: hidden; animation: none; }
+
+/* the board and the line under it already show every choice, so no list in the Send step */
+#bd-pane-4 .bd-recap { display: none; }

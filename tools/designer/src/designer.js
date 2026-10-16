@@ -327,12 +327,12 @@ export function init(root) {
   /* phones: size the options panel to the tallest step, so the board gets all the rest of the screen */
   function fitPanes() {
     const panes = $('.bd-panes'); if (!panes) return;
-    if (!window.matchMedia || !window.matchMedia('(max-width: 900px)').matches) { panes.style.removeProperty('--bd-ph'); root.style.removeProperty('--bd-ph'); return; }
+    const narrow = !!(window.matchMedia && window.matchMedia('(max-width: 900px)').matches);
     const all = $$('.bd-pane'); let max = 0;
     all.forEach((p) => { p.classList.add('is-measure'); });
     all.forEach((p) => { max = Math.max(max, p.offsetHeight); });
     all.forEach((p) => { p.classList.remove('is-measure'); });
-    const cap = Math.max(200, Math.round(root.clientHeight * (root.clientHeight < 700 ? 0.43 : 0.5)));
+    const cap = narrow ? Math.max(200, Math.round(root.clientHeight * (root.clientHeight < 700 ? 0.43 : 0.5))) : Math.max(320, window.innerHeight - 380);
     panes.style.setProperty('--bd-ph', Math.min(Math.max(max + 8, 180), cap) + 'px');
     moreCheck();
   }
