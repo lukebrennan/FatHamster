@@ -33,6 +33,43 @@ function clip(subject, clipPoly) {
   return out;
 }
 
+
+/* Write an icon's path with the position and size already applied, so no software has to
+   understand SVG transforms. Handles the commands the icons use (M L H V C S Q Z, either case). */
+function bakePath(d, s, tx, ty) {
+  const tok = d.match(/[MmLlHhVvCcSsQqZz]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) || [];
+  const num = () => Number(tok[i++]);
+  const X = (x) => r2(x * s + tx), Y = (y) => r2(y * s + ty);
+  let i = 0, cmd = '', x = 0, y = 0, sx = 0, sy = 0, lcx = 0, lcy = 0, out = '';
+  while (i < tok.length) {
+    if (/[A-Za-z]/.test(tok[i])) cmd = tok[i++];
+    const rel = cmd === cmd.toLowerCase(), C = cmd.toUpperCase();
+    if (C === 'Z') { out += 'Z'; x = sx; y = sy; continue; }
+    if (C === 'M') { const a = num(), b = num(); x = rel ? x + a : a; y = rel ? y + b : b; sx = x; sy = y; out += 'M' + X(x) + ' ' + Y(y); cmd = rel ? 'l' : 'L'; }
+    else if (C === 'L') { const a = num(), b = num(); x = rel ? x + a : a; y = rel ? y + b : b; out += 'L' + X(x) + ' ' + Y(y); }
+    else if (C === 'H') { const a = num(); x = rel ? x + a : a; out += 'L' + X(x) + ' ' + Y(y); }
+    else if (C === 'V') { const a = num(); y = rel ? y + a : a; out += 'L' + X(x) + ' ' + Y(y); }
+    else if (C === 'C') {
+      const a = [num(), num(), num(), num(), num(), num()];
+      const p = a.map((v, k) => (rel ? v + (k % 2 ? y : x) : v));
+      out += 'C' + X(p[0]) + ' ' + Y(p[1]) + ' ' + X(p[2]) + ' ' + Y(p[3]) + ' ' + X(p[4]) + ' ' + Y(p[5]);
+      lcx = p[2]; lcy = p[3]; x = p[4]; y = p[5];
+    } else if (C === 'S') {
+      const a = [num(), num(), num(), num()];
+      const p = a.map((v, k) => (rel ? v + (k % 2 ? y : x) : v));
+      const c1x = 2 * x - lcx, c1y = 2 * y - lcy;
+      out += 'C' + X(c1x) + ' ' + Y(c1y) + ' ' + X(p[0]) + ' ' + Y(p[1]) + ' ' + X(p[2]) + ' ' + Y(p[3]);
+      lcx = p[0]; lcy = p[1]; x = p[2]; y = p[3];
+    } else if (C === 'Q') {
+      const a = [num(), num(), num(), num()];
+      const p = a.map((v, k) => (rel ? v + (k % 2 ? y : x) : v));
+      out += 'Q' + X(p[0]) + ' ' + Y(p[1]) + ' ' + X(p[2]) + ' ' + Y(p[3]);
+      x = p[2]; y = p[3];
+    } else { i++; }
+  }
+  return out;
+}
+
 function glyphPath(d, s, ox, oy) {
   return d.replace(/([MLQC])([^MLQCZ]*)/g, (m, cmd, args) => {
     const n = args.trim().split(/[\s,]+/).map(Number), o = [];
@@ -68,7 +105,7 @@ export function buildEasel(state, shape, lay, k, fonts) {
   let icon = '';
   if (lay.icon && ICONS[state.icon] && ICONS[state.icon].d) {
     const ic = lay.icon, sz = ic.size / k, sc = sz / 24;
-    icon = '<path transform="translate(' + r2(ic.x / k - sz / 2) + ' ' + r2(ic.y / k - sz / 2) + ') scale(' + r2(sc * 1000) / 1000 + ')" d="' + ICONS[state.icon].d + '"/>';
+    icon = '<path d="' + bakePath(ICONS[state.icon].d, sz / 24, ic.x / k - sz / 2, ic.y / k - sz / 2) + '"/>';
   }
 
   let border = '';
@@ -92,7 +129,7 @@ export function buildEasel(state, shape, lay, k, fonts) {
     '<title>The Fat Hamster Wood Shop: ' + note + '</title>\n' +
     '<!-- Units are mm and sizes are a starting point. Red: cut out. Black: engrave. Blue: border line. Green: resin pocket. Orange: dishes. -->\n' +
     '<g id="cut-outline" fill="none" stroke="#e11d1d" stroke-width="0.3" fill-rule="evenodd"><path d="' + cut + '"/></g>\n' +
-    '<g id="engrave-words" fill="#000000" stroke="none"><path d="' + words + '"/></g>\n' +
+    (words ? '<g id="engrave-words" fill="#000000" stroke="none"><path d="' + words + '"/></g>\n' : '') +
     (icon ? '<g id="engrave-icon" fill="#000000" stroke="none">' + icon + '</g>\n' : '') +
     (border ? '<g id="border-line" fill="none" stroke="#1d4ed8" stroke-width="0.3">' + border + '</g>\n' : '') +
     (resin ? '<g id="resin-pocket" fill="none" stroke="#15803d" stroke-width="0.3">' + resin + '</g>\n' : '') +

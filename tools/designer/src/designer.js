@@ -274,7 +274,7 @@ export function init(root) {
     return [
       ['Shape', SHAPES[state.shape].name],
       ['Timber', WOODS[state.wood].name],
-      ['Words', w.length ? w.join(' / ') : 'None yet'],
+      ['Words', w.length ? w.join(' / ') : 'None yet (the picture shows sample words)'],
       ['Lettering', FONTS[state.font].name + ', ' + (state.finish === 'burn' ? 'burnt' : 'engraved')],
       ['Extras', [state.resin !== 'none' ? RESINS[state.resin].name + ' resin' : '', state.icon !== 'none' ? ICONS[state.icon].name + ' icon' : '', state.border ? 'Border' : ''].filter(Boolean).join(', ') || 'None']
     ];
