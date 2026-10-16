@@ -316,6 +316,19 @@ export function init(root) {
     moreCheck();
   }
 
+  /* phones: size the options panel to the tallest step, so the board gets all the rest of the screen */
+  function fitPanes() {
+    const panes = $('.bd-panes'); if (!panes) return;
+    if (!window.matchMedia || !window.matchMedia('(max-width: 900px)').matches) { panes.style.removeProperty('--bd-ph'); root.style.removeProperty('--bd-ph'); return; }
+    const all = $$('.bd-pane'); let max = 0;
+    all.forEach((p) => { p.classList.add('is-measure'); });
+    all.forEach((p) => { max = Math.max(max, p.offsetHeight); });
+    all.forEach((p) => { p.classList.remove('is-measure'); });
+    const cap = Math.max(200, Math.round(root.clientHeight * (root.clientHeight < 700 ? 0.43 : 0.5)));
+    panes.style.setProperty('--bd-ph', Math.min(Math.max(max + 8, 180), cap) + 'px');
+    moreCheck();
+  }
+
   /* fade the bottom edge of the options when there is more to scroll to (phones) */
   function moreCheck() {
     const el = $('.bd-panes'); if (!el) return;
@@ -340,7 +353,7 @@ export function init(root) {
     const t = mode === '3d' && ready3d ? (touchy ? 'Swipe sideways to turn the board' : 'Drag to turn it · drag the words to move them') : (touchy ? '' : 'Drag the words to move them');
     if (!t) { hint.hidden = true; return; }
     hint.textContent = t; hint.hidden = false;
-    clearTimeout(hintT); hintT = setTimeout(hideHint, 7000);
+    clearTimeout(hintT); hintT = setTimeout(hideHint, touchy ? 3800 : 7000);
   }
   function hideHint() { hintGone = true; hint.hidden = true; }
 
@@ -513,7 +526,7 @@ export function init(root) {
   })();
 
   $('.bd-panes').addEventListener('scroll', moreCheck, { passive: true });
-  window.addEventListener('resize', moreCheck);
+  window.addEventListener('resize', fitPanes);
   const adjustEl = $('.bd-adjust'); if (adjustEl) adjustEl.addEventListener('toggle', () => setTimeout(moreCheck, 0));
 
   /* the size and position sliders fold away on small screens */
@@ -598,7 +611,7 @@ export function init(root) {
   if (!can3d) { $('.bd-seg[data-view="3d"]').hidden = true; mode = '2d'; }
   else if (lowPower) mode = '2d';
   if (!touchy) root.classList.add('has-mouse');
-  syncUI(); goStep(0); setTimeout(moreCheck, 400);
+  syncUI(); goStep(0); setTimeout(fitPanes, 60); setTimeout(fitPanes, 600); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPanes);
   if (fromLink && decode(fromLink)) { goStep(4); }
   recompose();
   if (can3d) load3d();

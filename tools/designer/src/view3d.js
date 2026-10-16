@@ -89,16 +89,34 @@ export function createView3D(host, opts) {
   const ndc = new Vector2();
   let textBox = null, layerSize = { w: 1, h: 1 };
 
+  /* how far back the camera must be for the whole board to fill the frame at this turn.
+     Worked out per corner, so a wide board fills a wide stage and backs away as it swings round. */
+  let fitPts = [];
+  function needDist(az) {
+    if (!fitPts.length) return 0;
+    const vf = Math.tan(MathUtils.degToRad(FOV) / 2) * 0.92, hf = vf * camera.aspect;
+    const sp = Math.sin(POLAR), cp = Math.cos(POLAR);
+    const fx = -Math.sin(az) * sp, fy = -cp, fz = -Math.cos(az) * sp;           // camera -> target
+    let rx = -fz, ry = 0, rz = fx;                                               // right = f x up
+    const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;
+    const ux = ry * fz - rz * fy, uy = rz * fx - rx * fz, uz = rx * fy - ry * fx; // up = r x f
+    let d = 0;
+    for (let i = 0; i < fitPts.length; i++) {
+      const p = fitPts[i], x = p[0], y = p[1] - 0.06, z = p[2];
+      const cr = x * rx + y * ry + z * rz, cu = x * ux + y * uy + z * uz, cf = x * fx + y * fy + z * fz;
+      d = Math.max(d, Math.abs(cr) / hf - cf, Math.abs(cu) / vf - cf);
+    }
+    return d;
+  }
+
   function fit() {
     if (!shape) return;
     const w = host.clientWidth || 1, h = host.clientHeight || 1;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-    const bb = shape.bbox;
-    const r = Math.hypot(bb.w, bb.h) * 0.5 * S;
-    const vf = MathUtils.degToRad(FOV) / 2, hf = Math.atan(Math.tan(vf) * camera.aspect);
-    // the whole board stays in frame whichever way it is turned
-    dist = (r * 1.04) / Math.sin(Math.min(vf, hf) * 0.98);
+    camera.aspect = w / h;
+    camera.setViewOffset(w, h, 0, -Math.round(h * 0.015), w, h);
+    camera.updateProjectionMatrix();
+    dist = needDist(controls.getAzimuthalAngle()) || dist;
     const az = controls.getAzimuthalAngle();
     camera.position.set(Math.sin(az) * Math.sin(POLAR) * dist, Math.cos(POLAR) * dist, Math.cos(az) * Math.sin(POLAR) * dist);
     controls.target.set(0, 0.06, 0);
@@ -126,6 +144,9 @@ export function createView3D(host, opts) {
     mesh.scale.setScalar(S);
     pivot.add(mesh);
     paintShadow();
+    const th = (shape.thickness + 6) * S;
+    fitPts = [];
+    for (let i = 0; i < shape.outline.length; i += 2) { const q = shape.outline[i]; fitPts.push([q[0] * S, 0, -q[1] * S], [q[0] * S, th, -q[1] * S]); }
   }
 
   function makeTex(canvasEl, isColor) {
@@ -187,6 +208,15 @@ export function createView3D(host, opts) {
       changed = true;
     }
     if (!(sway && !userTouched) && controls.update()) changed = true;
+    {
+      const az = Math.atan2(camera.position.x, camera.position.z), want = needDist(az);
+      if (want && Math.abs(want - dist) > 0.002) {
+        dist += (want - dist) * 0.22;
+        camera.position.set(Math.sin(az) * Math.sin(POLAR) * dist, Math.cos(POLAR) * dist, Math.cos(az) * Math.sin(POLAR) * dist);
+        camera.lookAt(controls.target);
+        changed = true;
+      }
+    }
     if (changed || needs) { needs = false; renderer.render(scene, camera); }
   }
 
