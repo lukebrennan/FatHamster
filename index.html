@@ -542,8 +542,8 @@
           </ul>
         </div>
 
-        <!-- To receive enquiries by email without an email app: create a free form at formspree.io
-             with Phil's address and paste its URL (https://formspree.io/f/xxxx) into data-endpoint. -->
+        <!-- To email enquiries to Phil without an email app, deploy worker/worker.js (see worker/README.md)
+             and paste its URL into data-endpoint below. -->
         <form class="enquiry reveal" id="enquiry" data-endpoint="" novalidate>
           <div class="field">
             <label for="f-name">Your name</label>
@@ -608,7 +608,7 @@
     <button class="lb-nav lb-next" type="button" aria-label="Next photo">&#8250;</button>
   </dialog>
 
-  <script src="js/main.js?v=42"></script>
+  <script src="js/main.js?v=43"></script>
   <script>
     /* Loading screen: shown for at least 1.5s, until the page and fonts are ready, never longer than 3.5s */
     (function () {

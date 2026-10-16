@@ -399,17 +399,20 @@ export function init(root) {
 
   /* cutting file for Easel and other CNC software: the design as an SVG in millimetres */
   let glyphsP = null;
+  async function easelSvg() {
+    if (!glyphsP) glyphsP = fetch('/js/designer/glyphs.json?v=1').then((r) => { if (!r.ok) throw new Error('glyphs'); return r.json(); });
+    await Promise.all([ensureFont(state.font), ensureFont('clean')]);
+    const fonts = await glyphsP;
+    const shape = SHAPES[state.shape], bb = shape.bbox, k = TEXW / bb.w;
+    const X = (x) => (x - bb.x0) * k, Y = (y) => (bb.y1 - y) * k;
+    const ctx = document.createElement('canvas').getContext('2d');
+    const lay = layoutText(ctx, state, shape, k, X, Y, [state.a || '', state.b || '']);
+    const name = 'fat-hamster-' + state.shape + '-' + ((state.a || 'design').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'design') + '.svg';
+    return { svg: buildEasel(state, shape, lay, k, fonts), name };
+  }
   async function downloadEasel() {
     try {
-      if (!glyphsP) glyphsP = fetch('/js/designer/glyphs.json?v=1').then((r) => { if (!r.ok) throw new Error('glyphs'); return r.json(); });
-      await Promise.all([ensureFont(state.font), ensureFont('clean')]);
-      const fonts = await glyphsP;
-      const shape = SHAPES[state.shape], bb = shape.bbox, k = TEXW / bb.w;
-      const X = (x) => (x - bb.x0) * k, Y = (y) => (bb.y1 - y) * k;
-      const ctx = document.createElement('canvas').getContext('2d');
-      const lay = layoutText(ctx, state, shape, k, X, Y, [state.a || '', state.b || '']);
-      const svg = buildEasel(state, shape, lay, k, fonts);
-      const name = 'fat-hamster-' + state.shape + '-' + ((state.a || 'design').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24) || 'design') + '.svg';
+      const { svg, name } = await easelSvg();
       const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
@@ -417,11 +420,19 @@ export function init(root) {
     } catch (err) { glyphsP = null; if (window.console) console.error(err); toast('Could not make the file here. Try again.'); }
   }
 
+  /* everything Phil needs, for the enquiry email: link, summary, picture and cutting file */
+  async function exportDesign() {
+    const out = { url: designUrl(true), summary: describe().join(', ') };
+    try { const s = await easelSvg(); out.svg = s.svg; out.name = s.name; } catch (e) { glyphsP = null; }
+    try { const cv = await pictureCanvas(); out.jpeg = cv.toDataURL('image/jpeg', 0.85).split(',')[1]; } catch (e) { /* the link is enough */ }
+    return out;
+  }
+
   function activeImage() {
     if (mode === '3d' && ready3d) { view3d.render(); return view3d.image(); }
     return view2d.image();
   }
-  async function savePicture() {
+  async function pictureCanvas() {
     try { await Promise.all([ensureFont('bold'), ensureFont('clean')]); } catch (e) { /* carry on */ }
     const src = activeImage();
     const W = 1200, H = 900, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
@@ -436,6 +447,11 @@ export function init(root) {
     c.fillText(describe().slice(0, 2).join(' · '), W / 2, 790);
     c.font = '400 24px Bitter, Georgia, serif'; c.fillText(describe().slice(2).join(' · ') || 'Handmade in Prescot', W / 2, 828);
     c.fillStyle = '#86591f'; c.font = '600 22px Bitter, Georgia, serif'; c.fillText('fathamster.co.uk', W / 2, 866);
+    return cv;
+  }
+
+  async function savePicture() {
+    const cv = await pictureCanvas();
     cv.toBlob(async (blob) => {
       if (!blob) { toast('Could not make the picture'); return; }
       const file = new File([blob], 'my-fat-hamster-board.png', { type: 'image/png' });
@@ -614,6 +630,6 @@ export function init(root) {
   // if 3D never shows up, do not leave people looking at the poster
   setTimeout(() => { if (!stage.classList.contains('is-ready')) { view2d.show(); stage.classList.add('is-ready'); } }, 7000);
 
-  root.__bd = { get view3d() { return view3d; }, get state() { return state; }, get layers() { return layers; } };
+  root.__bd = { exportDesign, get view3d() { return view3d; }, get state() { return state; }, get layers() { return layers; } };
   return { toast };
 }

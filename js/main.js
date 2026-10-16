@@ -207,7 +207,7 @@
     var startDesigner = function () {
       if (designerStarted) return; designerStarted = true;
       var load = new Function('u', 'return import(u)');   // keeps very old browsers from choking on the syntax
-      load('/js/designer/designer.js?v=8').then(function (m) { m.init(dapp); }).catch(function () {
+      load('/js/designer/designer.js?v=9').then(function (m) { m.init(dapp); }).catch(function () {
         dapp.insertAdjacentHTML('beforeend', '<p class="bd-nojs">The board designer could not load here. You can still tell Phil what you would like in the <a href="#contact">enquiry form</a>.</p>');
       });
     };
@@ -285,7 +285,13 @@
 
     var btn = form.querySelector('button[type=submit]');
     btn.disabled = true; btn.textContent = 'Sending...';
-    fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(details) })
+    /* a board design from the designer travels with the enquiry: picture and cutting file for Phil */
+    var da = document.getElementById('designer-app');
+    var wantsDesign = /[?&]design=/.test(details.message) && da && da.__bd && da.__bd.exportDesign;
+    (wantsDesign ? da.__bd.exportDesign().then(function (x) { details.design = x; }, function () {}) : Promise.resolve())
+      .then(function () {
+        return fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(details) });
+      })
       .then(function (r) { if (!r.ok) throw new Error(r.status); })
       .then(function () {
         form.innerHTML = '<div class="thanks" role="status"><h3>Thank you, ' + details.name.replace(/[<>&"]/g, '') + '</h3><p>Your enquiry has been sent. Phil will be in touch by email soon.</p></div>';
