@@ -94,7 +94,7 @@ export function createView3D(host, opts) {
   let fitPts = [];
   function needDist(az) {
     if (!fitPts.length) return 0;
-    const vf = Math.tan(MathUtils.degToRad(FOV) / 2) * 0.92, hf = vf * camera.aspect;
+    const vf = Math.tan(MathUtils.degToRad(FOV) / 2) * 0.89, hf = vf * camera.aspect;
     const sp = Math.sin(POLAR), cp = Math.cos(POLAR);
     const fx = -Math.sin(az) * sp, fy = -cp, fz = -Math.cos(az) * sp;           // camera -> target
     let rx = -fz, ry = 0, rz = fx;                                               // right = f x up
